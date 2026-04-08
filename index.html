@@ -1,11 +1,242 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beautiful Calculator</title>
+    <!-- Modern font from Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1e0533, #110a1f, #051633);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: #fff;
+            overflow: hidden;
+            position: relative;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Abstract glowing blobs for aesthetic background blur */
+        .blob-1, .blob-2 {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(90px);
+            z-index: 1;
+        }
+
+        .blob-1 {
+            width: 350px;
+            height: 350px;
+            background: rgba(255, 0, 127, 0.4);
+            top: 10%;
+            left: 20%;
+            animation: moveBlob 20s infinite alternate;
+        }
+
+        .blob-2 {
+            width: 450px;
+            height: 450px;
+            background: rgba(0, 240, 255, 0.3);
+            bottom: 10%;
+            right: 15%;
+            animation: moveBlob 25s infinite alternate-reverse;
+        }
+
+        @keyframes moveBlob {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(60px, 60px) scale(1.1); }
+        }
+
+        .calculator {
+            width: 360px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 35px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .display {
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 20px;
+            padding: 25px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            justify-content: center;
+            word-wrap: break-word;
+            word-break: break-all;
+            min-height: 130px;
+            box-shadow: inset 0 5px 20px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            margin-bottom: 5px;
+        }
+
+        .previous-operand {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 1.3rem;
+            min-height: 26px;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .current-operand {
+            color: #fff;
+            font-size: 3rem;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-gap: 15px;
+        }
+
+        .btn {
+            border: none;
+            outline: none;
+            border-radius: 50%;
+            height: 65px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .operator {
+            background: rgba(255, 0, 127, 0.15);
+            color: #ff4da6;
+            border-color: rgba(255, 0, 127, 0.2);
+            font-weight: 500;
+            font-size: 1.8rem;
+        }
+
+        .operator:hover {
+            background: rgba(255, 0, 127, 0.3);
+            border-color: rgba(255, 0, 127, 0.4);
+            box-shadow: 0 8px 20px rgba(255, 0, 127, 0.2);
+        }
+
+        .clear, .delete {
+            background: rgba(0, 240, 255, 0.15);
+            color: #4dffff;
+            border-color: rgba(0, 240, 255, 0.2);
+            font-weight: 500;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+        }
+
+        .clear:hover, .delete:hover {
+            background: rgba(0, 240, 255, 0.3);
+            border-color: rgba(0, 240, 255, 0.4);
+            box-shadow: 0 8px 20px rgba(0, 240, 255, 0.2);
+        }
+
+        .equals {
+            grid-row: span 2;
+            height: auto;
+            border-radius: 35px;
+            background: linear-gradient(135deg, #ff007f, #7f00ff);
+            box-shadow: 0 10px 25px rgba(255, 0, 127, 0.3);
+            border: none;
+            font-size: 2rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .equals:hover {
+            background: linear-gradient(135deg, #ff1a8c, #8c1aff);
+            box-shadow: 0 15px 30px rgba(255, 0, 127, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .zero {
+            grid-column: span 2;
+            width: 100%;
+            border-radius: 35px;
+        }
+    </style>
 </head>
 <body>
-  <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Exercitationem, minima.</p>
+    <div class="blob-1"></div>
+    <div class="blob-2"></div>
+
+    <div class="calculator">
+        <div class="display">
+            <div class="previous-operand" id="previous-operand"></div>
+            <div class="current-operand" id="current-operand">0</div>
+        </div>
+        <div class="buttons">
+            <button class="btn clear" id="clear">AC</button>
+            <button class="btn delete" id="delete">DEL</button>
+            <button class="btn operator" data-operator="÷">÷</button>
+            <button class="btn operator" data-operator="×">×</button>
+            
+            <button class="btn number" data-number="7">7</button>
+            <button class="btn number" data-number="8">8</button>
+            <button class="btn number" data-number="9">9</button>
+            <button class="btn operator" data-operator="-">-</button>
+            
+            <button class="btn number" data-number="4">4</button>
+            <button class="btn number" data-number="5">5</button>
+            <button class="btn number" data-number="6">6</button>
+            <button class="btn operator" data-operator="+">+</button>
+            
+            <button class="btn number" data-number="1">1</button>
+            <button class="btn number" data-number="2">2</button>
+            <button class="btn number" data-number="3">3</button>
+            <button class="btn equals" id="equals">=</button>
+            
+            <button class="btn zero number" data-number="0">0</button>
+            <button class="btn number" data-number=".">.</button>
+        </div>
+    </div>
+    
+    <script src="upd.js"></script>
 </body>
 </html>
