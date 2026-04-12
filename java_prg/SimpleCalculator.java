@@ -1,4 +1,4 @@
-package demo.java_prg;
+
 
 import java.util.Scanner;
 
