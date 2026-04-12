@@ -1,4 +1,4 @@
-package demo.java_prg;
+
 public class star {
     public static void main(String[] args) {
         int rows = 5; // Number of rows for the star pattern

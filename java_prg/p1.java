@@ -1,4 +1,4 @@
-package demo.java_prg;
+
 import java.util.Scanner;
 public class p1 {
     public static void main(String[] args) {
