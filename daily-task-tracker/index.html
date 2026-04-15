@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daily Task Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="page-shell">
+    <main class="tracker-card">
+      <section class="hero">
+        <p class="eyebrow">Daily Focus</p>
+        <div class="hero-copy">
+          <div>
+            <h1>Task Tracker</h1>
+            <p id="today-label" class="today-label"></p>
+          </div>
+          <div class="hero-stats">
+            <div class="stat-pill">
+              <span class="stat-label">Completed</span>
+              <strong id="completion-count">0 / 0</strong>
+            </div>
+            <div class="stat-pill">
+              <span class="stat-label">Focus Score</span>
+              <strong id="focus-score">0%</strong>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="composer">
+        <form id="task-form" class="task-form">
+          <label class="input-group">
+            <span class="sr-only">Task title</span>
+            <input id="task-input" type="text" maxlength="120" placeholder="Add today's most important task">
+          </label>
+          <label class="input-group small">
+            <span class="field-label">Priority</span>
+            <select id="priority-select">
+              <option value="high">High</option>
+              <option value="medium" selected>Medium</option>
+              <option value="low">Low</option>
+            </select>
+          </label>
+          <button type="submit" class="primary-btn">Add Task</button>
+        </form>
+        <p id="form-message" class="form-message" aria-live="polite"></p>
+      </section>
+
+      <section class="toolbar">
+        <div class="filters" role="tablist" aria-label="Task filters">
+          <button class="filter-btn active" data-filter="all" type="button">All</button>
+          <button class="filter-btn" data-filter="pending" type="button">Pending</button>
+          <button class="filter-btn" data-filter="completed" type="button">Completed</button>
+          <button class="filter-btn" data-filter="high" type="button">High Priority</button>
+        </div>
+        <button id="clear-completed" class="secondary-btn" type="button">Clear Completed</button>
+      </section>
+
+      <section class="progress-panel" aria-label="Progress">
+        <div class="progress-copy">
+          <span>Today's momentum</span>
+          <strong id="progress-text">0% complete</strong>
+        </div>
+        <div class="progress-bar" aria-hidden="true">
+          <div id="progress-fill" class="progress-fill"></div>
+        </div>
+      </section>
+
+      <section class="task-list-panel">
+        <ul id="task-list" class="task-list" aria-live="polite"></ul>
+        <div id="empty-state" class="empty-state">
+          <h2>No tasks yet</h2>
+          <p>Add a task to start shaping your day.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <template id="task-template">
+    <li class="task-item">
+      <label class="task-check">
+        <input class="task-toggle" type="checkbox">
+        <span class="custom-check" aria-hidden="true"></span>
+      </label>
+      <div class="task-content">
+        <div class="task-topline">
+          <p class="task-title"></p>
+          <span class="priority-badge"></span>
+        </div>
+        <p class="task-meta"></p>
+      </div>
+      <div class="task-actions">
+        <button class="icon-btn edit-btn" type="button" aria-label="Edit task">Edit</button>
+        <button class="icon-btn delete-btn" type="button" aria-label="Delete task">Delete</button>
+      </div>
+    </li>
+  </template>
+
+  <script src="script.js"></script>
+</body>
+</html>
