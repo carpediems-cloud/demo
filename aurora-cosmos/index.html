@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aurora Cosmos — Interactive Universe Explorer</title>
+  <meta name="description" content="An immersive, interactive particle universe with real-time physics, aurora effects, and dynamic constellations." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --aurora-1: #00ffe7;
+      --aurora-2: #7b2fff;
+      --aurora-3: #ff2fa0;
+      --aurora-4: #ffaa00;
+      --glass: rgba(255,255,255,0.06);
+      --glass-border: rgba(255,255,255,0.12);
+    }
+
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden;
+      background: #000008;
+      font-family: 'Inter', sans-serif;
+      color: #fff;
+    }
+
+    canvas#cosmos {
+      position: fixed; inset: 0;
+      z-index: 0;
+    }
+
+    /* ── HUD overlay ── */
+    #hud {
+      position: fixed; inset: 0;
+      z-index: 10;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 28px 36px;
+    }
+
+    /* top-left: title */
+    #title-block {
+      pointer-events: all;
+    }
+    #title-block h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(1.2rem, 3vw, 2rem);
+      font-weight: 900;
+      letter-spacing: 0.15em;
+      background: linear-gradient(135deg, var(--aurora-1), var(--aurora-2), var(--aurora-3));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: none;
+      animation: titleGlow 4s ease-in-out infinite alternate;
+    }
+    #title-block p {
+      font-size: 0.75rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.38);
+      margin-top: 4px;
+    }
+
+    @keyframes titleGlow {
+      from { filter: brightness(1); }
+      to   { filter: brightness(1.5) drop-shadow(0 0 16px var(--aurora-1)); }
+    }
+
+    /* top-right: stat panel */
+    #stats {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-radius: 16px;
+      padding: 14px 20px;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.6);
+      pointer-events: all;
+      min-width: 170px;
+      align-self: flex-start;
+      margin-left: auto;
+    }
+    #stats .stat-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 6px;
+    }
+    #stats .stat-row:last-child { margin-bottom: 0; }
+    #stats .val {
+      color: var(--aurora-1);
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      font-size: 0.8rem;
+    }
+
+    /* bottom-center: controls */
+    #controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      pointer-events: all;
+      flex-wrap: wrap;
+    }
+
+    .ctrl-btn {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-radius: 50px;
+      padding: 10px 22px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      color: rgba(255,255,255,0.75);
+      cursor: pointer;
+      transition: all 0.28s ease;
+      user-select: none;
+    }
+    .ctrl-btn:hover, .ctrl-btn.active {
+      background: rgba(0,255,231,0.12);
+      border-color: var(--aurora-1);
+      color: var(--aurora-1);
+      box-shadow: 0 0 20px rgba(0,255,231,0.25), inset 0 0 12px rgba(0,255,231,0.06);
+      transform: translateY(-2px);
+    }
+    .ctrl-btn.active {
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%,100% { box-shadow: 0 0 20px rgba(0,255,231,0.25); }
+      50%      { box-shadow: 0 0 40px rgba(0,255,231,0.55); }
+    }
+
+    /* mode indicator pill */
+    #mode-pill {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-radius: 50px;
+      padding: 12px 32px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.9rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--aurora-1);
+      pointer-events: none;
+      z-index: 20;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    #mode-pill.show {
+      opacity: 1;
+      animation: fadeOut 1.8s forwards;
+    }
+    @keyframes fadeOut {
+      0%   { opacity: 1; transform: translate(-50%,-50%) scale(1); }
+      70%  { opacity: 1; }
+      100% { opacity: 0; transform: translate(-50%,-60%) scale(0.95); }
+    }
+
+    /* cursor glow */
+    #cursor-glow {
+      position: fixed;
+      width: 260px; height: 260px;
+      background: radial-gradient(circle, rgba(0,255,231,0.08) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 5;
+      transform: translate(-50%, -50%);
+      transition: width 0.3s, height 0.3s;
+    }
+
+    /* tooltip hint */
+    #hint {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.68rem;
+      letter-spacing: 0.15em;
+      color: rgba(255,255,255,0.22);
+      pointer-events: none;
+      z-index: 10;
+      text-transform: uppercase;
+    }
+
+    /* scroll wheel ring */
+    #scroll-hint {
+      position: fixed;
+      right: 36px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      pointer-events: none;
+      z-index: 10;
+      opacity: 0.3;
+      font-size: 0.6rem;
+      letter-spacing: 0.12em;
+      color: rgba(255,255,255,0.5);
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+    }
+    .scroll-line {
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(to bottom, transparent, var(--aurora-1), transparent);
+      animation: scrollAnim 2s ease-in-out infinite;
+    }
+    @keyframes scrollAnim {
+      0%,100% { opacity: 0.3; transform: scaleY(0.6); }
+      50%      { opacity: 1;   transform: scaleY(1); }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="cosmos"></canvas>
+<div id="cursor-glow"></div>
+
+<div id="hud">
+  <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:20px; flex-wrap:wrap;">
+    <div id="title-block">
+      <h1>AURORA COSMOS</h1>
+      <p>Interactive Universe Explorer</p>
+    </div>
+    <div id="stats">
+      <div class="stat-row"><span>PARTICLES</span><span class="val" id="s-particles">0</span></div>
+      <div class="stat-row"><span>CONSTELLATIONS</span><span class="val" id="s-stars">0</span></div>
+      <div class="stat-row"><span>GRAVITY WELLS</span><span class="val" id="s-wells">0</span></div>
+      <div class="stat-row"><span>FPS</span><span class="val" id="s-fps">60</span></div>
+    </div>
+  </div>
+
+  <div id="controls">
+    <button class="ctrl-btn active" id="btn-aurora">◈ AURORA</button>
+    <button class="ctrl-btn" id="btn-nebula">✦ NEBULA</button>
+    <button class="ctrl-btn" id="btn-gravity">⚛ GRAVITY WELL</button>
+    <button class="ctrl-btn" id="btn-explode">💥 SUPERNOVA</button>
+    <button class="ctrl-btn" id="btn-clear">⊘ CLEAR</button>
+    <button class="ctrl-btn" id="btn-fullscreen">⤢ FULLSCREEN</button>
+  </div>
+</div>
+
+<div id="mode-pill" role="status"></div>
+<div id="hint">Move cursor · Click to create · Scroll to zoom</div>
+<div id="scroll-hint">
+  <span>SCROLL</span>
+  <div class="scroll-line"></div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   AURORA COSMOS — Core Engine
+   ═══════════════════════════════════════════════════════ */
+
+const canvas  = document.getElementById('cosmos');
+const ctx     = canvas.getContext('2d');
+const cursorGlow = document.getElementById('cursor-glow');
+const modePill   = document.getElementById('mode-pill');
+
+/* ── State ── */
+let W, H, DPR;
+let mode        = 'aurora';  // aurora | nebula | gravity
+let particles   = [];
+let stars       = [];        // background stars
+let wells       = [];        // gravity wells
+let constellations = [];
+let mouseX = 0, mouseY = 0;
+let clickX = 0, clickY = 0;
+let zoom  = 1;
+let frame = 0;
+let lastTime = performance.now();
+let fpsSmooth = 60;
+
+const MAX_PARTICLES = 1800;
+const PALETTE = {
+  aurora:  ['#00ffe7','#7b2fff','#ff2fa0','#00cfff','#b5ff2f'],
+  nebula:  ['#ff6b35','#f7c59f','#efefd0','#004e89','#1a936f'],
+  gravity: ['#ffaa00','#ff5500','#ff0066','#9900ff','#00ccff'],
+};
+
+/* ══════════════ RESIZE ══════════════ */
+function resize() {
+  DPR = window.devicePixelRatio || 1;
+  W = canvas.width  = window.innerWidth  * DPR;
+  H = canvas.height = window.innerHeight * DPR;
+  canvas.style.width  = window.innerWidth  + 'px';
+  canvas.style.height = window.innerHeight + 'px';
+  ctx.scale(DPR, DPR);
+  initStars();
+}
+
+/* ══════════════ BACKGROUND STARS ══════════════ */
+function initStars() {
+  stars = [];
+  const count = Math.floor((window.innerWidth * window.innerHeight) / 4000);
+  for (let i = 0; i < count; i++) {
+    stars.push({
+      x: Math.random() * window.innerWidth,
+      y: Math.random() * window.innerHeight,
+      r: Math.random() * 1.6 + 0.2,
+      a: Math.random(),
+      flicker: Math.random() * 0.02 + 0.004,
+      phase: Math.random() * Math.PI * 2,
+    });
+  }
+  // constellations
+  constellations = [];
+  const numC = 4;
+  for (let c = 0; c < numC; c++) {
+    const pts = [];
+    const cx = Math.random() * window.innerWidth;
+    const cy = Math.random() * window.innerHeight;
+    const n  = Math.floor(Math.random() * 5) + 4;
+    for (let j = 0; j < n; j++) {
+      pts.push({
+        x: cx + (Math.random() - 0.5) * 220,
+        y: cy + (Math.random() - 0.5) * 220,
+      });
+    }
+    constellations.push(pts);
+  }
+}
+
+/* ══════════════ PARTICLES ══════════════ */
+function spawnParticle(x, y, burst = false) {
+  const pal   = PALETTE[mode === 'gravity' ? 'gravity' : mode];
+  const color = pal[Math.floor(Math.random() * pal.length)];
+  const speed = burst ? (Math.random() * 6 + 2) : (Math.random() * 2.5 + 0.5);
+  const angle = burst ? (Math.random() * Math.PI * 2) : (Math.random() * Math.PI * 2);
+  return {
+    x, y,
+    vx: Math.cos(angle) * speed,
+    vy: Math.sin(angle) * speed,
+    r: Math.random() * 3 + 1,
+    color,
+    alpha: 1,
+    decay: Math.random() * 0.01 + 0.004,
+    trail: [],
+    maxTrail: Math.floor(Math.random() * 18) + 8,
+    glow: Math.random() * 12 + 4,
+    spin: (Math.random() - 0.5) * 0.08,
+    angle: 0,
+    born: frame,
+  };
+}
+
+/* ══════════════ GRAVITY WELLS ══════════════ */
+function spawnWell(x, y) {
+  wells.push({
+    x, y,
+    strength: Math.random() * 80 + 40,
+    r:   Math.random() * 12 + 8,
+    pulse: 0,
+    color: PALETTE.gravity[Math.floor(Math.random() * PALETTE.gravity.length)],
+    life: 1,
+  });
+}
+
+/* ══════════════ AURORA AURORA CURTAIN ══════════════ */
+function drawAuroraCurtain(t) {
+  const waves = 3;
+  for (let w = 0; w < waves; w++) {
+    const grad = ctx.createLinearGradient(0, 0, 0, window.innerHeight * 0.6);
+    const phase = t * 0.0004 + w * 1.1;
+    const hue1 = (180 + w * 50 + Math.sin(phase) * 30) % 360;
+    const hue2 = (280 + w * 40 + Math.cos(phase) * 25) % 360;
+    grad.addColorStop(0, `hsla(${hue1},100%,65%,0)`);
+    grad.addColorStop(0.3, `hsla(${hue1},100%,65%,0.07)`);
+    grad.addColorStop(0.6, `hsla(${hue2},100%,60%,0.05)`);
+    grad.addColorStop(1, 'transparent');
+
+    ctx.save();
+    ctx.beginPath();
+    const pts = 12;
+    const sliceW = window.innerWidth / pts;
+    ctx.moveTo(0, window.innerHeight);
+    for (let i = 0; i <= pts; i++) {
+      const px = i * sliceW;
+      const py = window.innerHeight * 0.15
+               + Math.sin(i * 0.6 + phase + w) * 80
+               + Math.sin(i * 0.3 + phase * 0.7) * 50;
+      if (i === 0) ctx.lineTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.lineTo(window.innerWidth, window.innerHeight);
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+/* ══════════════ DRAW LOOP ══════════════ */
+function drawBackground(t) {
+  // deep space gradient
+  const bg = ctx.createRadialGradient(
+    window.innerWidth/2, window.innerHeight/2, 0,
+    window.innerWidth/2, window.innerHeight/2, Math.max(W, H)
+  );
+  bg.addColorStop(0, '#05001a');
+  bg.addColorStop(0.5, '#020013');
+  bg.addColorStop(1, '#000006');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+
+  // aurora curtain (always visible)
+  drawAuroraCurtain(t);
+}
+
+function drawStars(t) {
+  // constellation lines
+  ctx.save();
+  constellations.forEach(pts => {
+    ctx.beginPath();
+    pts.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+    ctx.strokeStyle = 'rgba(180,200,255,0.07)';
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
+  });
+  ctx.restore();
+
+  // stars
+  stars.forEach(s => {
+    s.phase += s.flicker;
+    const alpha = s.a * (0.5 + 0.5 * Math.sin(s.phase));
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(220,235,255,${alpha})`;
+    ctx.shadowColor = 'rgba(150,200,255,0.6)';
+    ctx.shadowBlur  = s.r * 3;
+    ctx.fill();
+    ctx.restore();
+  });
+}
+
+function drawWells(t) {
+  wells = wells.filter(w => w.life > 0.02);
+  wells.forEach(w => {
+    w.pulse = (w.pulse + 0.06) % (Math.PI * 2);
+    w.life -= 0.0008;
+    const rings = 3;
+    for (let r = 0; r < rings; r++) {
+      const scale = 1 + r * 0.8 + Math.sin(w.pulse + r) * 0.3;
+      const alpha = (0.4 - r * 0.1) * w.life;
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(w.x, w.y, w.r * scale, 0, Math.PI * 2);
+      ctx.strokeStyle = w.color + Math.floor(alpha * 255).toString(16).padStart(2,'0');
+      ctx.lineWidth = 1.5 - r * 0.4;
+      ctx.shadowColor = w.color;
+      ctx.shadowBlur  = 18;
+      ctx.stroke();
+      ctx.restore();
+    }
+    // core dot
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(w.x, w.y, w.r * 0.4, 0, Math.PI * 2);
+    ctx.fillStyle = w.color;
+    ctx.shadowColor = w.color;
+    ctx.shadowBlur  = 30;
+    ctx.globalAlpha = w.life;
+    ctx.fill();
+    ctx.restore();
+  });
+}
+
+function applyPhysics(p, dt) {
+  // gravity wells pull
+  wells.forEach(w => {
+    const dx = w.x - p.x, dy = w.y - p.y;
+    const dist2 = dx * dx + dy * dy;
+    if (dist2 < 0.1) return;
+    const dist = Math.sqrt(dist2);
+    const force = (w.strength * w.life) / dist2;
+    p.vx += (dx / dist) * force * dt * 0.016;
+    p.vy += (dy / dist) * force * dt * 0.016;
+  });
+
+  // mouse attraction (gentle)
+  if (mode === 'aurora') {
+    const dx = mouseX - p.x, dy = mouseY - p.y;
+    const dist = Math.sqrt(dx*dx + dy*dy) + 1;
+    if (dist < 180) {
+      const force = 0.3 / dist;
+      p.vx += dx * force * 0.04;
+      p.vy += dy * force * 0.04;
+    }
+  }
+
+  // drag
+  p.vx *= 0.985;
+  p.vy *= 0.985;
+
+  // spin drift
+  p.vx += Math.sin(p.angle) * 0.04;
+  p.vy += Math.cos(p.angle) * 0.04;
+  p.angle += p.spin;
+}
+
+function drawParticles() {
+  particles = particles.filter(p => p.alpha > 0.01);
+
+  particles.forEach(p => {
+    // trail
+    p.trail.push({ x: p.x, y: p.y });
+    if (p.trail.length > p.maxTrail) p.trail.shift();
+
+    if (p.trail.length > 2) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(p.trail[0].x, p.trail[0].y);
+      for (let i = 1; i < p.trail.length; i++) {
+        ctx.lineTo(p.trail[i].x, p.trail[i].y);
+      }
+      ctx.strokeStyle = p.color;
+      ctx.globalAlpha = p.alpha * 0.35;
+      ctx.lineWidth   = p.r * 0.5;
+      ctx.lineCap     = 'round';
+      ctx.lineJoin    = 'round';
+      ctx.shadowColor = p.color;
+      ctx.shadowBlur  = p.glow * 0.5;
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // particle core
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fillStyle  = p.color;
+    ctx.globalAlpha = p.alpha;
+    ctx.shadowColor = p.color;
+    ctx.shadowBlur  = p.glow;
+    ctx.fill();
+    ctx.restore();
+
+    applyPhysics(p, 1);
+    p.x += p.vx;
+    p.y += p.vy;
+    p.alpha -= p.decay;
+  });
+}
+
+function spawnAmbient() {
+  if (particles.length >= MAX_PARTICLES) return;
+  // edges ambient
+  const side = Math.floor(Math.random() * 4);
+  let x, y;
+  if (side === 0) { x = Math.random() * window.innerWidth; y = -10; }
+  else if (side === 1) { x = window.innerWidth + 10; y = Math.random() * window.innerHeight; }
+  else if (side === 2) { x = Math.random() * window.innerWidth; y = window.innerHeight + 10; }
+  else { x = -10; y = Math.random() * window.innerHeight; }
+
+  if (mode === 'aurora' && Math.random() < 0.6) {
+    const p = spawnParticle(x, y);
+    // drift inward gently
+    const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
+    const angle = Math.atan2(cy - y, cx - x) + (Math.random() - 0.5) * 1.2;
+    const sp = Math.random() * 1.5 + 0.4;
+    p.vx = Math.cos(angle) * sp;
+    p.vy = Math.sin(angle) * sp;
+    p.decay = Math.random() * 0.006 + 0.002;
+    p.maxTrail = 30;
+    particles.push(p);
+  } else if (mode === 'nebula' && Math.random() < 0.8) {
+    const p = spawnParticle(
+      Math.random() * window.innerWidth,
+      Math.random() * window.innerHeight * 0.6
+    );
+    p.vx = (Math.random() - 0.5) * 0.6;
+    p.vy = Math.random() * 0.4 + 0.1;
+    p.r  = Math.random() * 6 + 2;
+    p.glow = 20;
+    p.decay = 0.003;
+    p.maxTrail = 10;
+    particles.push(p);
+  }
+}
+
+/* ══════════════ FPS COUNTER ══════════════ */
+function updateStats(t) {
+  const dt = t - lastTime;
+  lastTime = t;
+  const fps = 1000 / dt;
+  fpsSmooth = fpsSmooth * 0.9 + fps * 0.1;
+  if (frame % 10 === 0) {
+    document.getElementById('s-particles').textContent = particles.length;
+    document.getElementById('s-stars').textContent = constellations.length;
+    document.getElementById('s-wells').textContent = wells.length;
+    document.getElementById('s-fps').textContent = Math.round(fpsSmooth);
+  }
+}
+
+/* ══════════════ MAIN LOOP ══════════════ */
+function loop(t) {
+  frame++;
+  updateStats(t);
+
+  ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+
+  drawBackground(t);
+  drawStars(t);
+  drawWells(t);
+
+  // ambient spawning
+  const rate = mode === 'nebula' ? 3 : 2;
+  if (frame % rate === 0) spawnAmbient();
+
+  drawParticles();
+
+  requestAnimationFrame(loop);
+}
+
+/* ══════════════ INTERACTION ══════════════ */
+document.addEventListener('mousemove', e => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+  cursorGlow.style.left = e.clientX + 'px';
+  cursorGlow.style.top  = e.clientY + 'px';
+});
+
+document.addEventListener('click', e => {
+  if (e.target.closest('#hud')) return;
+  const x = e.clientX, y = e.clientY;
+
+  if (mode === 'gravity') {
+    spawnWell(x, y);
+    return;
+  }
+
+  // burst of particles
+  const count = mode === 'nebula' ? 60 : 45;
+  for (let i = 0; i < count; i++) {
+    if (particles.length < MAX_PARTICLES) {
+      particles.push(spawnParticle(x, y, true));
+    }
+  }
+});
+
+// touch support
+document.addEventListener('touchstart', e => {
+  Array.from(e.changedTouches).forEach(t => {
+    const x = t.clientX, y = t.clientY;
+    if (mode === 'gravity') { spawnWell(x, y); return; }
+    const count = 30;
+    for (let i = 0; i < count; i++) {
+      if (particles.length < MAX_PARTICLES) particles.push(spawnParticle(x, y, true));
+    }
+  });
+}, { passive: true });
+
+document.addEventListener('touchmove', e => {
+  const t = e.touches[0];
+  mouseX = t.clientX;
+  mouseY = t.clientY;
+}, { passive: true });
+
+/* scroll zoom */
+document.addEventListener('wheel', e => {
+  zoom = Math.max(0.5, Math.min(2.5, zoom - e.deltaY * 0.001));
+  canvas.style.transform = `scale(${zoom})`;
+}, { passive: true });
+
+/* ══════════════ BUTTONS ══════════════ */
+function setMode(m, label) {
+  mode = m;
+  document.querySelectorAll('.ctrl-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('btn-' + m)?.classList.add('active');
+  showPill(label);
+}
+
+function showPill(msg) {
+  modePill.textContent = msg;
+  modePill.classList.remove('show');
+  void modePill.offsetWidth;
+  modePill.classList.add('show');
+}
+
+document.getElementById('btn-aurora').addEventListener('click', () => setMode('aurora', '✦ Aurora Mode'));
+document.getElementById('btn-nebula').addEventListener('click', () => setMode('nebula', '✦ Nebula Mode'));
+document.getElementById('btn-gravity').addEventListener('click', () => {
+  mode = 'gravity';
+  document.querySelectorAll('.ctrl-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('btn-gravity').classList.add('active');
+  showPill('⚛ Gravity Well Mode');
+});
+document.getElementById('btn-explode').addEventListener('click', () => {
+  showPill('💥 Supernova!');
+  const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
+  for (let i = 0; i < 300; i++) {
+    if (particles.length < MAX_PARTICLES) {
+      const p = spawnParticle(cx, cy, true);
+      p.decay = 0.005;
+      p.maxTrail = 25;
+      const sp = Math.random() * 10 + 3;
+      const a  = Math.random() * Math.PI * 2;
+      p.vx = Math.cos(a) * sp;
+      p.vy = Math.sin(a) * sp;
+      particles.push(p);
+    }
+  }
+});
+document.getElementById('btn-clear').addEventListener('click', () => {
+  particles = [];
+  wells = [];
+  showPill('⊘ Universe Cleared');
+});
+document.getElementById('btn-fullscreen').addEventListener('click', () => {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(() => {});
+    showPill('⤢ Fullscreen');
+  } else {
+    document.exitFullscreen().catch(() => {});
+    showPill('⊡ Window Mode');
+  }
+});
+
+/* ══════════════ KEYBOARD SHORTCUTS ══════════════ */
+document.addEventListener('keydown', e => {
+  if (e.key === '1') document.getElementById('btn-aurora').click();
+  if (e.key === '2') document.getElementById('btn-nebula').click();
+  if (e.key === '3') document.getElementById('btn-gravity').click();
+  if (e.key === ' ') document.getElementById('btn-explode').click();
+  if (e.key === 'c' || e.key === 'C') document.getElementById('btn-clear').click();
+  if (e.key === 'f' || e.key === 'F') document.getElementById('btn-fullscreen').click();
+});
+
+/* ══════════════ INIT ══════════════ */
+window.addEventListener('resize', resize);
+resize();
+requestAnimationFrame(loop);
+showPill('✦ Aurora Cosmos — Welcome');
+</script>
+</body>
+</html>
