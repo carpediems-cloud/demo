@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Interactive Milky Way Solar System - Explore all planets with zoom controls and stunning animations." />
+  <title>Milky Way Solar System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Header -->
+  <header id="site-header">
+    <div class="header-logo">
+      <span class="logo-icon">🌌</span>
+      <h1>Milky Way <span class="accent">Solar System</span></h1>
+    </div>
+    <p class="header-sub">Interactive 2D Orrery — Click a planet to explore</p>
+  </header>
+
+  <!-- Controls Bar -->
+  <div id="controls-bar">
+    <div class="control-group" id="zoom-controls">
+      <button id="btn-zoom-in"  class="ctrl-btn" title="Zoom In">＋</button>
+      <span id="zoom-label">100%</span>
+      <button id="btn-zoom-out" class="ctrl-btn" title="Zoom Out">－</button>
+      <button id="btn-zoom-reset" class="ctrl-btn" title="Reset Zoom">⟳</button>
+    </div>
+    <div class="control-group">
+      <label class="toggle-label" for="toggle-speed">Speed</label>
+      <input type="range" id="toggle-speed" min="0.1" max="5" step="0.1" value="1" />
+    </div>
+    <div class="control-group">
+      <button id="btn-pause" class="ctrl-btn">⏸ Pause</button>
+    </div>
+    <div class="control-group">
+      <label class="toggle-label" for="toggle-labels">Labels</label>
+      <input type="checkbox" id="toggle-labels" checked />
+    </div>
+  </div>
+
+  <!-- Canvas -->
+  <main id="canvas-wrapper">
+    <canvas id="solar-canvas"></canvas>
+    <div id="drag-hint">🖱 Drag to pan &nbsp;|&nbsp; Scroll or use +/− to zoom</div>
+  </main>
+
+  <!-- Planet Info Panel -->
+  <aside id="info-panel" class="hidden">
+    <button id="close-panel">✕</button>
+    <div id="panel-emoji" class="planet-emoji"></div>
+    <h2 id="panel-name"></h2>
+    <div class="info-grid">
+      <div class="info-item"><span class="info-label">Type</span><span id="panel-type"></span></div>
+      <div class="info-item"><span class="info-label">Diameter</span><span id="panel-diameter"></span></div>
+      <div class="info-item"><span class="info-label">Distance from Sun</span><span id="panel-distance"></span></div>
+      <div class="info-item"><span class="info-label">Orbital Period</span><span id="panel-period"></span></div>
+      <div class="info-item"><span class="info-label">Moons</span><span id="panel-moons"></span></div>
+      <div class="info-item"><span class="info-label">Avg Temperature</span><span id="panel-temp"></span></div>
+    </div>
+    <p id="panel-desc"></p>
+  </aside>
+
+  <!-- Tooltip -->
+  <div id="tooltip" class="hidden"></div>
+
+  <!-- Stars background (CSS-only) -->
+  <div id="stars-bg"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
