@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WW2 Chronicle — The Deadliest Conflict in Human History</title>
+  <meta name="description" content="An immersive journey through World War II — from its dark origins to the hard-won victory that reshaped civilization."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Cinzel+Decorative:wght@700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=Oswald:wght@300;400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+  <!-- ═══════════════ NAVIGATION ═══════════════ -->
+  <nav id="navbar">
+    <div class="nav-inner">
+      <a href="#hero" class="nav-brand">
+        <span class="nav-star">✠</span>
+        <span>WW2 CHRONICLE</span>
+      </a>
+      <button class="nav-toggle" id="navToggle" aria-label="Menu">☰</button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#timeline">Timeline</a></li>
+        <li><a href="#battles">Battles</a></li>
+        <li><a href="#statistics">Statistics</a></li>
+        <li><a href="#leaders">Leaders</a></li>
+        <li><a href="#legacy">Legacy</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ═══════════════ HERO ═══════════════ -->
+  <section id="hero">
+    <div class="hero-bg" style="background-image: url('assets/hero.png')"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-particles" id="heroParticles"></div>
+    <div class="hero-content">
+      <div class="hero-date reveal-up">1939 — 1945</div>
+      <h1 class="hero-title reveal-up">
+        <span class="title-line">THE SECOND</span>
+        <span class="title-line main">WORLD WAR</span>
+      </h1>
+      <p class="hero-sub reveal-up">
+        Six years. Thirty nations. Over <strong>70 million</strong> lives lost.<br/>
+        The deadliest conflict in the history of humanity.
+      </p>
+      <div class="hero-cta reveal-up">
+        <a href="#overview" class="btn-primary">Explore Now</a>
+        <a href="#timeline" class="btn-ghost">View Timeline</a>
+      </div>
+    </div>
+    <div class="hero-scroll-hint">
+      <span>SCROLL</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ OVERVIEW ═══════════════ -->
+  <section id="overview" class="section">
+    <div class="container">
+      <div class="section-label reveal-up">THE CONFLICT</div>
+      <h2 class="section-title reveal-up">What Was World War II?</h2>
+      <div class="overview-grid">
+        <div class="overview-text reveal-left">
+          <p>World War II was a global conflict that lasted from <strong>September 1, 1939</strong> to <strong>September 2, 1945</strong>. It arose from unresolved tensions of the First World War, the Great Depression, and the rise of fascism and totalitarianism across Europe and Asia.</p>
+          <p>The war pitted the <span class="highlight-allied">Allied Powers</span> — led by the United Kingdom, United States, Soviet Union, and France — against the <span class="highlight-axis">Axis Powers</span> — led by Nazi Germany, Fascist Italy, and Imperial Japan.</p>
+          <p>From the trenches of North Africa to the frozen steppes of Russia, from the islands of the Pacific to the beaches of Normandy — this war touched every corner of the earth and forever changed the course of human history.</p>
+        </div>
+        <div class="overview-facts reveal-right">
+          <div class="fact-card">
+            <span class="fact-icon">🌍</span>
+            <span class="fact-title">Global Reach</span>
+            <span class="fact-desc">Fought across 6 continents and all oceans</span>
+          </div>
+          <div class="fact-card">
+            <span class="fact-icon">⚔️</span>
+            <span class="fact-title">30+ Nations</span>
+            <span class="fact-desc">Countries involved on both sides of the conflict</span>
+          </div>
+          <div class="fact-card">
+            <span class="fact-icon">💀</span>
+            <span class="fact-title">70–85 Million</span>
+            <span class="fact-desc">Estimated total deaths, military and civilian</span>
+          </div>
+          <div class="fact-card">
+            <span class="fact-icon">🕰️</span>
+            <span class="fact-title">6 Years</span>
+            <span class="fact-desc">Duration of the war from 1939 to 1945</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ DIVIDER QUOTE ═══════════════ -->
+  <div class="quote-divider">
+    <div class="quote-inner">
+      <blockquote>
+        "Those who cannot remember the past are condemned to repeat it."
+        <cite>— George Santayana</cite>
+      </blockquote>
+    </div>
+  </div>
+
+  <!-- ═══════════════ TIMELINE ═══════════════ -->
+  <section id="timeline" class="section dark-section">
+    <div class="container">
+      <div class="section-label reveal-up">YEAR BY YEAR</div>
+      <h2 class="section-title reveal-up">Timeline of the War</h2>
+
+      <div class="timeline">
+        <div class="timeline-item reveal-left" data-year="1939">
+          <div class="tl-dot"></div>
+          <div class="tl-content">
+            <div class="tl-year">1939</div>
+            <h3>The War Begins</h3>
+            <p>Nazi Germany invades Poland on September 1. Britain and France declare war on Germany two days later. The Soviet Union invades Poland from the east under the Molotov–Ribbentrop Pact.</p>
+          </div>
+        </div>
+
+        <div class="timeline-item reveal-right" data-year="1940">
+          <div class="tl-dot"></div>
+          <div class="tl-content">
+            <div class="tl-year">1940</div>
+            <h3>Fall of France & Battle of Britain</h3>
+            <p>Germany rapidly conquers Denmark, Norway, Belgium, Netherlands, and France. The Dunkirk evacuation saves 300,000 Allied troops. The Luftwaffe launches massive air raids on Britain — and the RAF holds the line.</p>
+          </div>
+        </div>
+
+        <div class="timeline-item reveal-left" data-year="1941">
+          <div class="tl-dot"></div>
+          <div class="tl-content">
+            <div class="tl-year">1941</div>
+            <h3>A World at War</h3>
+            <p>Germany launches Operation Barbarossa — the largest land invasion in history — against the Soviet Union. Japan attacks Pearl Harbor on December 7, bringing the United States into the war. The conflict truly becomes global.</p>
+          </div>
+        </div>
+
+        <div class="timeline-item reveal-right" data-year="1942">
+          <div class="tl-dot"></div>
+          <div class="tl-content">
+            <div class="tl-year">1942</div>
+            <h3>The Turning Point</h3>
+            <p>The Battle of Midway cripples Japan's naval power. In North Africa, the Allies begin pushing back Rommel. The brutal Battle of Stalingrad begins — a six-month siege that will become the deadliest battle in history.</p>
+          </div>
+        </div>
+
+        <div class="timeline-item reveal-left" data-year="1943">
+          <div class="tl-dot"></div>
+          <div class="tl-content">
+            <div class="tl-year">1943</div>
+            <h3>The Tide Turns</h3>
+            <p>Germany surrenders at Stalingrad — a catastrophic blow. The Allies invade Sicily and Italy. German forces are defeated in North Africa. In the Pacific, the island-hopping campaign intensifies.</p>
+          </div>
+        </div>
+
+        <div class="timeline-item reveal-right" data-year="1944">
+          <div class="tl-dot"></div>
+          <div class="tl-content">
+            <div class="tl-year">1944</div>
+            <h3>D-Day & Liberation</h3>
+            <p>Operation Overlord — the largest seaborne invasion in history — lands 156,000 Allied troops on the beaches of Normandy on June 6. Paris is liberated. Soviet forces push westward. Germany launches its last desperate Ardennes offensive.</p>
+          </div>
+        </div>
+
+        <div class="timeline-item reveal-left" data-year="1945">
+          <div class="tl-dot"></div>
+          <div class="tl-content">
+            <div class="tl-year">1945</div>
+            <h3>Victory & New World Order</h3>
+            <p>Soviet forces reach Berlin. Adolf Hitler dies on April 30. Germany surrenders unconditionally on May 8 (V-E Day). Atomic bombs are dropped on Hiroshima and Nagasaki. Japan surrenders on September 2 — the war is over.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ BATTLES ═══════════════ -->
+  <section id="battles" class="section">
+    <div class="container">
+      <div class="section-label reveal-up">MAJOR ENGAGEMENTS</div>
+      <h2 class="section-title reveal-up">Defining Battles</h2>
+      <p class="section-sub reveal-up">The battles that shaped the outcome and legacy of World War II</p>
+
+      <div class="battles-grid">
+        <div class="battle-card reveal-up" style="--delay:0s">
+          <div class="battle-img" style="background-image:url('assets/normandy.png')">
+            <div class="battle-overlay"></div>
+            <div class="battle-tag">WESTERN FRONT</div>
+          </div>
+          <div class="battle-info">
+            <div class="battle-date">Jun 6, 1944</div>
+            <h3>D-Day: Normandy Landings</h3>
+            <p>Operation Overlord — the largest seaborne invasion ever — marked the beginning of the liberation of Western Europe from Nazi occupation.</p>
+            <div class="battle-stats-row">
+              <span><strong>156,000</strong> troops</span>
+              <span><strong>5,000</strong> ships</span>
+              <span><strong>11,000</strong> aircraft</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="battle-card reveal-up" style="--delay:0.15s">
+          <div class="battle-img" style="background-image:url('assets/stalingrad.png')">
+            <div class="battle-overlay"></div>
+            <div class="battle-tag">EASTERN FRONT</div>
+          </div>
+          <div class="battle-info">
+            <div class="battle-date">Aug 1942 — Feb 1943</div>
+            <h3>Battle of Stalingrad</h3>
+            <p>The bloodiest battle in the history of warfare. The Soviet victory at Stalingrad marked the decisive turning point on the Eastern Front.</p>
+            <div class="battle-stats-row">
+              <span><strong>2M+</strong> casualties</span>
+              <span><strong>6 months</strong> siege</span>
+              <span><strong>800,000</strong> Axis lost</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="battle-card reveal-up" style="--delay:0.3s">
+          <div class="battle-img" style="background-image:url('assets/pacific.png')">
+            <div class="battle-overlay"></div>
+            <div class="battle-tag">PACIFIC THEATER</div>
+          </div>
+          <div class="battle-info">
+            <div class="battle-date">Jun 4–7, 1942</div>
+            <h3>Battle of Midway</h3>
+            <p>A decisive naval engagement in the Pacific War. The US Navy's victory halted Japanese expansion and shifted the strategic balance of power.</p>
+            <div class="battle-stats-row">
+              <span><strong>4</strong> carriers sunk</span>
+              <span><strong>248</strong> aircraft lost</span>
+              <span><strong>Turning point</strong></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="battle-card reveal-up" style="--delay:0.45s">
+          <div class="battle-img battle-img-gradient">
+            <div class="battle-gradient-bg"></div>
+            <div class="battle-overlay"></div>
+            <div class="battle-tag">NORTH AFRICA</div>
+          </div>
+          <div class="battle-info">
+            <div class="battle-date">Oct–Nov 1942</div>
+            <h3>Second Battle of El Alamein</h3>
+            <p>Montgomery's 8th Army defeated Rommel's Afrika Korps — a critical Allied victory that Churchill called "the end of the beginning."</p>
+            <div class="battle-stats-row">
+              <span><strong>195,000</strong> Allied troops</span>
+              <span><strong>12 days</strong></span>
+              <span><strong>Africa secured</strong></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ STATISTICS ═══════════════ -->
+  <section id="statistics" class="section dark-section stats-section">
+    <div class="stats-bg-art"></div>
+    <div class="container">
+      <div class="section-label reveal-up">BY THE NUMBERS</div>
+      <h2 class="section-title reveal-up">The Scale of Destruction</h2>
+
+      <div class="stats-grid">
+        <div class="stat-item reveal-up" style="--delay:0s">
+          <div class="stat-number" data-target="70000000" data-suffix="+" data-prefix="">70M+</div>
+          <div class="stat-label">Total Deaths</div>
+          <div class="stat-bar"><div class="stat-bar-fill" style="width:100%"></div></div>
+        </div>
+        <div class="stat-item reveal-up" style="--delay:0.1s">
+          <div class="stat-number" data-target="30" data-suffix="+" data-prefix="">30+</div>
+          <div class="stat-label">Nations Involved</div>
+          <div class="stat-bar"><div class="stat-bar-fill" style="width:85%"></div></div>
+        </div>
+        <div class="stat-item reveal-up" style="--delay:0.2s">
+          <div class="stat-number" data-target="6000000" data-suffix="" data-prefix="~">~6M</div>
+          <div class="stat-label">Jewish Holocaust Victims</div>
+          <div class="stat-bar"><div class="stat-bar-fill" style="width:60%"></div></div>
+        </div>
+        <div class="stat-item reveal-up" style="--delay:0.3s">
+          <div class="stat-number" data-target="27000000" data-suffix="" data-prefix="">27M</div>
+          <div class="stat-label">Soviet Union Deaths</div>
+          <div class="stat-bar"><div class="stat-bar-fill" style="width:75%"></div></div>
+        </div>
+        <div class="stat-item reveal-up" style="--delay:0.4s">
+          <div class="stat-number" data-target="1" data-suffix=" trillion" data-prefix="$">$1 trillion</div>
+          <div class="stat-label">Estimated War Cost (1945 USD)</div>
+          <div class="stat-bar"><div class="stat-bar-fill" style="width:90%"></div></div>
+        </div>
+        <div class="stat-item reveal-up" style="--delay:0.5s">
+          <div class="stat-number" data-target="2194" data-suffix=" days" data-prefix="">2,194</div>
+          <div class="stat-label">Duration of the War</div>
+          <div class="stat-bar"><div class="stat-bar-fill" style="width:50%"></div></div>
+        </div>
+      </div>
+
+      <!-- Casualties breakdown -->
+      <div class="casualties-breakdown reveal-up">
+        <h3>Military vs. Civilian Casualties</h3>
+        <div class="breakdown-bars">
+          <div class="breakdown-item">
+            <span class="bd-label">Military Deaths</span>
+            <div class="bd-bar">
+              <div class="bd-fill bd-military" style="width: 48%"></div>
+            </div>
+            <span class="bd-value">~21–25M</span>
+          </div>
+          <div class="breakdown-item">
+            <span class="bd-label">Civilian Deaths</span>
+            <div class="bd-bar">
+              <div class="bd-fill bd-civilian" style="width: 72%"></div>
+            </div>
+            <span class="bd-value">~50–55M</span>
+          </div>
+        </div>
+        <p class="breakdown-note">For the first time in modern history, civilian deaths outnumbered military deaths — a grim testament to the total nature of this war.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ LEADERS ═══════════════ -->
+  <section id="leaders" class="section">
+    <div class="container">
+      <div class="section-label reveal-up">KEY FIGURES</div>
+      <h2 class="section-title reveal-up">The Leaders Who Shaped the War</h2>
+
+      <div class="leaders-sides">
+        <div class="leaders-side allied reveal-left">
+          <div class="side-header allied-header">
+            <div class="side-icon">✦</div>
+            <h3>Allied Powers</h3>
+          </div>
+          <div class="leaders-list">
+            <div class="leader-card">
+              <div class="leader-avatar" style="background: linear-gradient(135deg,#1a3a5c,#2d6a9f)">
+                <span>WSC</span>
+              </div>
+              <div class="leader-info">
+                <h4>Winston Churchill</h4>
+                <span class="leader-role">Prime Minister, United Kingdom</span>
+                <p>"We shall fight on the beaches… we shall never surrender."</p>
+              </div>
+            </div>
+            <div class="leader-card">
+              <div class="leader-avatar" style="background: linear-gradient(135deg,#1a3a5c,#8b1a1a)">
+                <span>FDR</span>
+              </div>
+              <div class="leader-info">
+                <h4>Franklin D. Roosevelt</h4>
+                <span class="leader-role">President, United States</span>
+                <p>Led America through the war; architect of the Grand Alliance.</p>
+              </div>
+            </div>
+            <div class="leader-card">
+              <div class="leader-avatar" style="background: linear-gradient(135deg,#8b1a1a,#c0392b)">
+                <span>JS</span>
+              </div>
+              <div class="leader-info">
+                <h4>Joseph Stalin</h4>
+                <span class="leader-role">Premier, Soviet Union</span>
+                <p>Led Soviet forces in the brutal Eastern Front campaign against Germany.</p>
+              </div>
+            </div>
+            <div class="leader-card">
+              <div class="leader-avatar" style="background: linear-gradient(135deg,#1a4d2e,#27ae60)">
+                <span>CdG</span>
+              </div>
+              <div class="leader-info">
+                <h4>Charles de Gaulle</h4>
+                <span class="leader-role">Leader, Free France</span>
+                <p>Symbol of French resistance and the fighting spirit of a free France.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="leaders-divider">
+          <div class="div-line"></div>
+          <span>VS</span>
+          <div class="div-line"></div>
+        </div>
+
+        <div class="leaders-side axis reveal-right">
+          <div class="side-header axis-header">
+            <div class="side-icon">✖</div>
+            <h3>Axis Powers</h3>
+          </div>
+          <div class="leaders-list">
+            <div class="leader-card">
+              <div class="leader-avatar" style="background: linear-gradient(135deg,#2c2c2c,#5a0f0f)">
+                <span>AH</span>
+              </div>
+              <div class="leader-info">
+                <h4>Adolf Hitler</h4>
+                <span class="leader-role">Führer, Nazi Germany</span>
+                <p>Architect of the Third Reich, the Holocaust, and the war itself. Died April 30, 1945.</p>
+              </div>
+            </div>
+            <div class="leader-card">
+              <div class="leader-avatar" style="background: linear-gradient(135deg,#3a2000,#8b4513)">
+                <span>HT</span>
+              </div>
+              <div class="leader-info">
+                <h4>Hideki Tojo</h4>
+                <span class="leader-role">Prime Minister, Japan</span>
+                <p>Led Japan's military expansion across Asia and the Pacific theater.</p>
+              </div>
+            </div>
+            <div class="leader-card">
+              <div class="leader-avatar" style="background: linear-gradient(135deg,#1a1a2e,#16213e)">
+                <span>BM</span>
+              </div>
+              <div class="leader-info">
+                <h4>Benito Mussolini</h4>
+                <span class="leader-role">Il Duce, Fascist Italy</span>
+                <p>Fascist leader of Italy who allied with Germany, overthrown in 1943.</p>
+              </div>
+            </div>
+            <div class="leader-card">
+              <div class="leader-avatar" style="background: linear-gradient(135deg,#2c2c2c,#4a4a6a)">
+                <span>ER</span>
+              </div>
+              <div class="leader-info">
+                <h4>Erwin Rommel</h4>
+                <span class="leader-role">"The Desert Fox", Germany</span>
+                <p>Brilliant German field marshal, feared and respected even by his enemies in North Africa.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ LEGACY ═══════════════ -->
+  <section id="legacy" class="section dark-section">
+    <div class="container">
+      <div class="section-label reveal-up">AFTERMATH</div>
+      <h2 class="section-title reveal-up">The War's Lasting Legacy</h2>
+      <p class="section-sub reveal-up">World War II permanently reshaped the political, social, and technological landscape of our world.</p>
+
+      <div class="legacy-grid">
+        <div class="legacy-card reveal-up" style="--delay:0s">
+          <div class="legacy-icon">🌐</div>
+          <h3>United Nations</h3>
+          <p>Founded in 1945 to prevent future global conflicts, the UN established an international framework for diplomacy, peacekeeping, and human rights.</p>
+        </div>
+        <div class="legacy-card reveal-up" style="--delay:0.1s">
+          <div class="legacy-icon">☢️</div>
+          <h3>Nuclear Age</h3>
+          <p>The atomic bombings of Hiroshima and Nagasaki ushered in the nuclear age, defining Cold War geopolitics for decades and threatening mutually assured destruction.</p>
+        </div>
+        <div class="legacy-card reveal-up" style="--delay:0.2s">
+          <div class="legacy-icon">🔬</div>
+          <h3>Technological Revolution</h3>
+          <p>Radar, jet engines, computers, penicillin, and rocketry — technologies born of wartime necessity transformed post-war civilian life and the modern world.</p>
+        </div>
+        <div class="legacy-card reveal-up" style="--delay:0.3s">
+          <div class="legacy-icon">📜</div>
+          <h3>Human Rights</h3>
+          <p>The Holocaust galvanized the world to adopt the Universal Declaration of Human Rights in 1948, establishing fundamental rights for all of humanity.</p>
+        </div>
+        <div class="legacy-card reveal-up" style="--delay:0.4s">
+          <div class="legacy-icon">🌍</div>
+          <h3>Decolonization</h3>
+          <p>The weakening of European empires accelerated independence movements across Asia, Africa, and the Middle East, redrawing the world map entirely.</p>
+        </div>
+        <div class="legacy-card reveal-up" style="--delay:0.5s">
+          <div class="legacy-icon">❄️</div>
+          <h3>The Cold War</h3>
+          <p>The ideological division between the US and USSR led to 45 years of Cold War, a space race, proxy wars, and a world divided between capitalism and communism.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ FINAL QUOTE ═══════════════ -->
+  <div class="final-quote reveal-up">
+    <div class="container">
+      <blockquote class="big-quote">
+        "In war, there are no unwounded soldiers."
+        <cite>— José Narosky</cite>
+      </blockquote>
+      <p class="closing-text">May we never forget the sacrifices made, the horrors endured, and the lessons learned.</p>
+    </div>
+  </div>
+
+  <!-- ═══════════════ FOOTER ═══════════════ -->
+  <footer id="footer">
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <span class="nav-star">✠</span>
+          <span class="footer-name">WW2 CHRONICLE</span>
+        </div>
+        <p class="footer-desc">An educational tribute to the greatest conflict in human history. Created to inform, educate, and ensure the lessons of World War II are never forgotten.</p>
+        <div class="footer-links">
+          <a href="#hero">Back to Top ↑</a>
+          <a href="#timeline">Timeline</a>
+          <a href="#battles">Battles</a>
+          <a href="#leaders">Leaders</a>
+          <a href="#legacy">Legacy</a>
+        </div>
+        <p class="footer-copy">© 2025 WW2 Chronicle. Educational purposes only. All historical data sourced from academic records.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
