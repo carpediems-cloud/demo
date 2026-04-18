@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Balloon Pop Parade</title>
+  <meta name="description" content="A cheerful balloon pop game for children with floating balloons, score, stars, and a countdown timer.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="page">
+    <section class="welcome-card">
+      <p class="eyebrow">Kids Mini Project</p>
+      <h1>Balloon Pop Parade</h1>
+      <p class="intro">
+        Bright balloons are floating into the sky. Pop as many as you can, build a streak,
+        and collect shiny stars before the timer ends.
+      </p>
+
+      <div class="scoreboard">
+        <article class="score-item">
+          <span>Score</span>
+          <strong id="scoreValue">0</strong>
+        </article>
+        <article class="score-item">
+          <span>Stars</span>
+          <strong id="starsValue">0</strong>
+        </article>
+        <article class="score-item">
+          <span>Time</span>
+          <strong id="timeValue">30s</strong>
+        </article>
+      </div>
+
+      <section class="mission-card" aria-live="polite">
+        <p class="mission-label">Balloon Mission</p>
+        <div class="mission-row">
+          <div id="targetBadge" class="target-badge pink">Pop Fast</div>
+          <div class="mission-text">
+            <strong id="missionTitle">Tap start to begin</strong>
+            <p id="missionText">Click the balloons before they float away to earn points and stars.</p>
+          </div>
+        </div>
+      </section>
+
+      <div class="button-row">
+        <button id="startBtn" class="primary-btn" type="button">Start Game</button>
+        <button id="resetBtn" class="secondary-btn" type="button">New Round</button>
+      </div>
+    </section>
+
+    <section class="play-card">
+      <div class="sky-band">
+        <span class="cloud cloud-one"></span>
+        <span class="cloud cloud-two"></span>
+        <span class="sun"></span>
+      </div>
+
+      <div id="playground" class="playground" aria-label="Balloon playground"></div>
+
+      <div class="footer-bar">
+        <div class="footer-pill">
+          <span>Best Streak</span>
+          <strong id="streakValue">0</strong>
+        </div>
+        <div class="footer-pill">
+          <span>Round Status</span>
+          <strong id="statusValue">Ready to play</strong>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
