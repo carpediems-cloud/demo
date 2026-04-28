@@ -1,0 +1,114 @@
+:root {
+  color-scheme: light;
+  font-family: Inter, system-ui, sans-serif;
+  background: #f6f8fb;
+  color: #111827;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: radial-gradient(
+    circle at top,
+    #ffffff 0%,
+    #e7eff9 40%,
+    #f6f8fb 100%
+  );
+}
+
+.app-shell {
+  width: min(980px, calc(100% - 32px));
+  margin: 32px auto;
+  padding: 28px;
+  background: white;
+  border-radius: 24px;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.12);
+}
+
+header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+h1 {
+  margin: 0 0 8px;
+  font-size: clamp(2rem, 2.5vw, 3rem);
+}
+
+p {
+  margin: 0;
+  color: #4b5563;
+}
+
+.panel {
+  margin-top: 24px;
+  padding: 22px;
+  border: 1px solid #dbe2ee;
+  border-radius: 18px;
+  background: #ffffff;
+}
+
+.counter-row,
+.task-input-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
+.counter-row button,
+.task-input-row button {
+  border: none;
+  border-radius: 12px;
+  padding: 12px 18px;
+  cursor: pointer;
+  font-size: 1rem;
+  color: white;
+  background: #3b82f6;
+  transition:
+    transform 0.16s ease,
+    background 0.16s ease;
+}
+
+.counter-row button:hover,
+.task-input-row button:hover {
+  transform: translateY(-1px);
+  background: #2563eb;
+}
+
+.counter-row span {
+  min-width: 60px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.task-input-row input {
+  flex: 1;
+  min-width: 180px;
+  padding: 12px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  font-size: 1rem;
+}
+
+.task-list {
+  list-style: none;
+  margin: 18px 0 0;
+  padding: 0;
+  border-top: 1px solid #e5e7eb;
+}
+
+.task-list li {
+  padding: 12px 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.empty-state {
+  color: #6b7280;
+}
