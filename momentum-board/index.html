@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Momentum Board</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="shell">
+    <section class="workspace" aria-label="Momentum Board">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Today</p>
+          <h1>Momentum Board</h1>
+        </div>
+        <div class="clock" aria-live="polite">
+          <span id="currentTime">--:--</span>
+          <small id="currentDate">Loading</small>
+        </div>
+      </header>
+
+      <section class="summary" aria-label="Daily progress">
+        <article>
+          <span id="doneCount">0</span>
+          <p>done</p>
+        </article>
+        <article>
+          <span id="activeCount">0</span>
+          <p>active</p>
+        </article>
+        <article>
+          <span id="focusCount">0</span>
+          <p>focus min</p>
+        </article>
+        <article>
+          <span id="streakCount">0</span>
+          <p>streak</p>
+        </article>
+      </section>
+
+      <section class="maker" aria-label="Add a task">
+        <form id="taskForm">
+          <label>
+            <span>Task</span>
+            <input id="taskTitle" type="text" maxlength="80" placeholder="Ship the next useful thing" required>
+          </label>
+          <label>
+            <span>Category</span>
+            <select id="taskCategory">
+              <option value="Build">Build</option>
+              <option value="Study">Study</option>
+              <option value="Life">Life</option>
+              <option value="Health">Health</option>
+            </select>
+          </label>
+          <label>
+            <span>Effort</span>
+            <input id="taskEffort" type="number" min="5" max="180" step="5" value="25">
+          </label>
+          <button type="submit">Add</button>
+        </form>
+      </section>
+
+      <section class="content">
+        <aside class="focus-panel" aria-label="Focus timer">
+          <div class="timer-face">
+            <canvas id="pulseCanvas" width="360" height="360" aria-hidden="true"></canvas>
+            <div class="timer-readout">
+              <span id="timerDisplay">25:00</span>
+              <small id="timerMode">Ready</small>
+            </div>
+          </div>
+          <div class="timer-controls">
+            <button id="startTimer" type="button" aria-label="Start or pause timer">▶</button>
+            <button id="resetTimer" type="button" aria-label="Reset timer">↺</button>
+            <button id="shortTimer" type="button">15</button>
+            <button id="longTimer" type="button">45</button>
+          </div>
+        </aside>
+
+        <section class="task-panel" aria-label="Task list">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Queue</p>
+              <h2>Next actions</h2>
+            </div>
+            <div class="filters" role="tablist" aria-label="Task filters">
+              <button class="active" type="button" data-filter="all">All</button>
+              <button type="button" data-filter="active">Active</button>
+              <button type="button" data-filter="done">Done</button>
+            </div>
+          </div>
+          <ul id="taskList" class="tasks"></ul>
+          <p id="emptyState" class="empty">Add one task to start building momentum.</p>
+        </section>
+      </section>
+    </section>
+  </main>
+
+  <template id="taskTemplate">
+    <li class="task">
+      <button class="check" type="button" aria-label="Toggle task">✓</button>
+      <div class="task-main">
+        <strong></strong>
+        <span></span>
+      </div>
+      <small></small>
+      <button class="delete" type="button" aria-label="Delete task">×</button>
+    </li>
+  </template>
+
+  <script src="script.js"></script>
+</body>
+</html>

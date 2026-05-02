@@ -1,0 +1,371 @@
+:root {
+  color-scheme: light;
+  --ink: #18202b;
+  --muted: #637083;
+  --paper: #f6f1e8;
+  --panel: #fffaf0;
+  --line: #d9cfc0;
+  --green: #247b5b;
+  --blue: #2f6c9f;
+  --coral: #d85d4a;
+  --gold: #c28a21;
+  --shadow: 0 22px 70px rgba(44, 38, 29, 0.18);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--ink);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background:
+    linear-gradient(120deg, rgba(47, 108, 159, 0.12), transparent 34%),
+    linear-gradient(240deg, rgba(216, 93, 74, 0.12), transparent 36%),
+    var(--paper);
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.shell {
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 28px 0;
+}
+
+.workspace {
+  min-height: calc(100vh - 56px);
+  border: 1px solid var(--line);
+  background: rgba(255, 250, 240, 0.88);
+  box-shadow: var(--shadow);
+  padding: clamp(18px, 3vw, 34px);
+}
+
+.topbar,
+.panel-head,
+.content,
+.summary,
+form,
+.timer-controls,
+.task {
+  display: flex;
+}
+
+.topbar,
+.panel-head,
+.task {
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.eyebrow {
+  margin: 0 0 4px;
+  color: var(--coral);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+h1 {
+  font-size: clamp(2rem, 5vw, 4.8rem);
+  line-height: 0.95;
+}
+
+h2 {
+  font-size: 1.3rem;
+}
+
+.clock {
+  min-width: 120px;
+  text-align: right;
+}
+
+.clock span {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 800;
+}
+
+.clock small,
+.summary p,
+.task span,
+.task small,
+.empty,
+label span {
+  color: var(--muted);
+}
+
+.summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin: 28px 0 18px;
+}
+
+.summary article {
+  min-height: 92px;
+  border: 1px solid var(--line);
+  background: #fffdfa;
+  padding: 18px;
+}
+
+.summary span {
+  display: block;
+  color: var(--green);
+  font-size: 2rem;
+  font-weight: 900;
+}
+
+.maker {
+  border-block: 1px solid var(--line);
+  padding: 16px 0;
+}
+
+form {
+  align-items: end;
+  gap: 12px;
+}
+
+label {
+  display: grid;
+  flex: 1;
+  gap: 7px;
+  min-width: 130px;
+}
+
+input,
+select {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fffdfa;
+  color: var(--ink);
+  padding: 12px 13px;
+  outline: none;
+}
+
+input:focus,
+select:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(47, 108, 159, 0.15);
+}
+
+form button,
+.filters button,
+.timer-controls button {
+  border: 1px solid var(--ink);
+  border-radius: 8px;
+  background: var(--ink);
+  color: white;
+  min-height: 45px;
+  padding: 0 18px;
+  font-weight: 800;
+}
+
+.content {
+  align-items: stretch;
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.focus-panel,
+.task-panel {
+  border: 1px solid var(--line);
+  background: #fffdfa;
+  padding: 18px;
+}
+
+.focus-panel {
+  flex: 0 0 min(38%, 410px);
+}
+
+.task-panel {
+  flex: 1;
+  min-width: 0;
+}
+
+.timer-face {
+  position: relative;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+}
+
+canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.timer-readout {
+  position: absolute;
+  text-align: center;
+}
+
+.timer-readout span {
+  display: block;
+  font-size: clamp(2.8rem, 7vw, 5.4rem);
+  font-weight: 900;
+}
+
+.timer-readout small {
+  color: var(--blue);
+  font-weight: 800;
+}
+
+.timer-controls {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.timer-controls button {
+  background: transparent;
+  color: var(--ink);
+  padding: 0;
+}
+
+.timer-controls button:first-child {
+  background: var(--green);
+  border-color: var(--green);
+  color: white;
+}
+
+.filters {
+  display: flex;
+  gap: 8px;
+}
+
+.filters button {
+  border-color: var(--line);
+  background: transparent;
+  color: var(--muted);
+  min-height: 38px;
+  padding: 0 12px;
+}
+
+.filters button.active {
+  border-color: var(--blue);
+  background: var(--blue);
+  color: white;
+}
+
+.tasks {
+  display: grid;
+  gap: 10px;
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.task {
+  border: 1px solid var(--line);
+  background: #fffaf0;
+  padding: 12px;
+}
+
+.task.done {
+  opacity: 0.62;
+}
+
+.task.done strong {
+  text-decoration: line-through;
+}
+
+.check,
+.delete {
+  display: grid;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: white;
+  color: var(--ink);
+  font-weight: 900;
+}
+
+.task.done .check {
+  border-color: var(--green);
+  background: var(--green);
+  color: white;
+}
+
+.delete {
+  color: var(--coral);
+}
+
+.task-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.task-main strong,
+.task-main span {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.empty {
+  padding: 26px 0 8px;
+  text-align: center;
+}
+
+@media (max-width: 820px) {
+  .content,
+  form {
+    flex-direction: column;
+  }
+
+  .focus-panel {
+    flex-basis: auto;
+  }
+
+  .summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 540px) {
+  .shell {
+    width: 100%;
+    padding: 0;
+  }
+
+  .workspace {
+    min-height: 100vh;
+    border: 0;
+  }
+
+  .topbar,
+  .panel-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .clock {
+    text-align: left;
+  }
+
+  .summary {
+    grid-template-columns: 1fr;
+  }
+}
