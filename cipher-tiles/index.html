@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cipher Tiles</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="game">
+    <section class="topbar" aria-label="Game status">
+      <div>
+        <p class="kicker">Cipher Tiles</p>
+        <h1>Match the code.</h1>
+      </div>
+      <div class="stats">
+        <span><strong id="moves">0</strong> moves</span>
+        <span><strong id="timer">45</strong>s</span>
+      </div>
+    </section>
+
+    <section class="target" aria-label="Target pattern">
+      <p>Target</p>
+      <div id="targetGrid" class="mini-grid"></div>
+    </section>
+
+    <section id="board" class="board" aria-label="Puzzle board"></section>
+
+    <section class="actions" aria-label="Game actions">
+      <button id="newGame" type="button">New code</button>
+      <p id="message" aria-live="polite">Tap a tile to cycle its symbol.</p>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
