@@ -1,24 +1,42 @@
-#include<stdio.h>
+#include <iostream>
 
-int main(){
+int main() {
     int num;
-    int sum=0;
-    int digit;
-    
-    printf("Enter a number: ");
-    scanf("%d",&num);
-    
-    int temp=num;
-    while(temp>0){
-        digit=temp%10;
-        sum+=digit*digit*digit;
-        temp/=10;
+    std::cout << "Enter a number: ";
+    if (!(std::cin >> num)) {
+        std::cout << "Invalid input." << std::endl;
+        return 1;
     }
     
-    if(sum==num){
-        printf("The number is an Armstrong number");
-    }else{
-        printf("The number is not an Armstrong number");
+    if (num < 0) {
+        std::cout << num << " is not an Armstrong number." << std::endl;
+        return 0;
+    }
+    
+    // Count the number of digits
+    int temp = num;
+    int n = 0;
+    while (temp > 0) {
+        n++;
+        temp /= 10;
+    }
+    
+    temp = num;
+    long long sum = 0;
+    while (temp > 0) {
+        int digit = temp % 10;
+        long long power = 1;
+        for (int i = 0; i < n; i++) {
+            power *= digit;
+        }
+        sum += power;
+        temp /= 10;
+    }
+    
+    if (sum == num) {
+        std::cout << num << " is an Armstrong number." << std::endl;
+    } else {
+        std::cout << num << " is not an Armstrong number." << std::endl;
     }
     
     return 0;
