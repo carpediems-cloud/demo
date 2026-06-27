@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript DOM Manipulation Playground</title>
+    <link rel="stylesheet" href="dom-demo.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>DOM Manipulation Playground</h1>
+            <p>An interactive workspace for understanding standard browser DOM methods and events.</p>
+        </header>
+
+        <main class="dashboard">
+            <!-- Left Panel: Control Center -->
+            <section class="panel control-panel">
+                <h2 class="panel-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"></rect><rect x="14" y="3" width="7" height="5"></rect><rect x="14" y="12" width="7" height="9"></rect><rect x="3" y="16" width="7" height="5"></rect></svg>
+                    Control Panel
+                </h2>
+
+                <!-- 1. Selectors -->
+                <div class="control-group">
+                    <div class="control-group-title">1. Selecting Elements</div>
+                    <button class="btn" id="btn-select-id">Select Card by ID</button>
+                    <button class="btn" id="btn-select-class">Select by Class Name</button>
+                    <button class="btn" id="btn-select-query">Query Selector (First Card)</button>
+                    <button class="btn" id="btn-select-query-all">Query Selector All</button>
+                </div>
+
+                <!-- 2. Content & Modification -->
+                <div class="control-group">
+                    <div class="control-group-title">2. Creation & Deletion</div>
+                    <button class="btn" id="btn-append">Append New Card</button>
+                    <button class="btn" id="btn-prepend">Prepend New Card</button>
+                    <button class="btn" id="btn-remove-last">Remove Last Card</button>
+                </div>
+
+                <!-- 3. Styling & Classes -->
+                <div class="control-group">
+                    <div class="control-group-title">3. Styling & Attributes</div>
+                    <button class="btn" id="btn-toggle-theme">Toggle Light/Dark Theme</button>
+                    <button class="btn" id="btn-random-style">Random Card Gradient</button>
+                    <button class="btn" id="btn-set-attribute">Add Badge Attribute</button>
+                </div>
+
+                <!-- 4. Traversal -->
+                <div class="control-group">
+                    <div class="control-group-title">4. DOM Traversal</div>
+                    <button class="btn" id="btn-traverse-sibling">Get Card 1 Next Sibling</button>
+                    <button class="btn" id="btn-traverse-parent">Get Sandbox Parent</button>
+                    <button class="btn" id="btn-traverse-children">Select Card Grid Children</button>
+                </div>
+            </section>
+
+            <!-- Middle Panel: Sandbox Area -->
+            <section class="panel sandbox-panel">
+                <h2 class="panel-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+                    Visual Sandbox
+                </h2>
+                
+                <div class="sandbox-area" id="sandbox-container">
+                    <div class="sandbox-instructions">Interactive Sandbox Area</div>
+                    
+                    <!-- Dynamic Grid Container -->
+                    <div class="card-grid" id="card-grid-container">
+                        <!-- Initial Cards -->
+                        <div class="sandbox-card" id="card-1">
+                            <div class="card-id">#card-1</div>
+                            <div class="card-title">Initial Item A</div>
+                            <div class="card-text">Class Name: .sandbox-card. Located inside the main card grid.</div>
+                        </div>
+                        <div class="sandbox-card" id="card-2">
+                            <div class="card-id">#card-2</div>
+                            <div class="card-title">Initial Item B</div>
+                            <div class="card-text">Class Name: .sandbox-card. Click me directly to trigger selection.</div>
+                        </div>
+                    </div>
+
+                    <!-- Custom Form Insertion Zone -->
+                    <div class="interactive-zone">
+                        <div class="input-group">
+                            <input type="text" id="input-card-title" class="input-field" placeholder="Enter Card Title...">
+                            <button class="btn-inline" id="btn-add-custom">Add Custom Card</button>
+                        </div>
+                    </div>
+
+                    <!-- Event Delegation Demo Area -->
+                    <div class="delegation-area" id="delegation-zone">
+                        <div class="delegation-area-title">5. Event Delegation Zone (Clicks are handled by parent)</div>
+                        <div class="delegation-buttons">
+                            <button class="delegation-btn" data-action="save">Save Data</button>
+                            <button class="delegation-btn" data-action="refresh">Refresh Status</button>
+                            <button class="delegation-btn" data-action="delete">Clear Logs</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Panel: Code & Logs Console -->
+            <section class="panel console-panel">
+                <h2 class="panel-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+                    Console Output
+                </h2>
+
+                <div class="code-viewer">
+                    <div class="panel-header-sub">JavaScript Code Executed</div>
+                    <div class="console-box code-box" id="code-output">// Click any button on the left to see Javascript code execution.</div>
+                </div>
+
+                <div class="log-output">
+                    <div class="panel-header-sub">Terminal Logs</div>
+                    <div class="console-box log-box" id="log-output">[Log]: System loaded. Ready for user interaction.</div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Import JavaScript library -->
+    <script src="dom-demo.js"></script>
+
+    <!-- Orchestrator Script -->
+    <script>
+        // DOM elements for our dashboard log/console
+        const codeOutput = document.getElementById('code-output');
+        const logOutput = document.getElementById('log-output');
+        const cardGrid = document.getElementById('card-grid-container');
+        const sandboxArea = document.getElementById('sandbox-container');
+        let cardCounter = 2; // Initial cards: 2
+
+        // Helper to output to logs and code viewer
+        function updateConsole(code, logMessage) {
+            codeOutput.textContent = code;
+            
+            // Append timestamped log
+            const time = new Date().toLocaleTimeString();
+            const currentLog = logOutput.textContent;
+            logOutput.textContent = `[${time}] ${logMessage}\n${currentLog}`;
+        }
+
+        // Helper to remove highlight animations after complete
+        function handleAnimationCleanup(el) {
+            if (!el) return;
+            el.addEventListener('animationend', () => {
+                el.classList.remove('highlight');
+            }, { once: true });
+        }
+
+        // Helper to show a temporary visual highlight
+        function addHighlight(el) {
+            if (!el) return;
+            el.classList.add('highlight');
+            handleAnimationCleanup(el);
+        }
+
+        // ==========================================
+        // Event Listeners for Control Panel buttons
+        // ==========================================
+
+        // 1. Selector Actions
+        document.getElementById('btn-select-id').addEventListener('click', () => {
+            const card1 = selectById('card-1');
+            if (card1) {
+                addHighlight(card1);
+                updateConsole(
+                    `const card = selectById('card-1');\n// or document.getElementById('card-1')\n\ncard.classList.add('highlight');`,
+                    `Selected Card 1 by ID (#card-1). Applied highlighting CSS animation.`
+                );
+            } else {
+                updateConsole(
+                    `const card = selectById('card-1'); // Not found`,
+                    `Error: #card-1 does not exist in the DOM.`
+                );
+            }
+        });
+
+        document.getElementById('btn-select-class').addEventListener('click', () => {
+            const cards = selectByClass('sandbox-card');
+            
+            // HTMLCollection is indexable, highlight all
+            Array.from(cards).forEach(card => addHighlight(card));
+            
+            updateConsole(
+                `const cards = selectByClass('sandbox-card');\n// or document.getElementsByClassName('sandbox-card')\n\nArray.from(cards).forEach(card => {\n    card.classList.add('highlight');\n});`,
+                `Selected ${cards.length} cards by class name (.sandbox-card). Highlighted all elements in collection.`
+            );
+        });
+
+        document.getElementById('btn-select-query').addEventListener('click', () => {
+            const firstCard = selectOne('.sandbox-card');
+            if (firstCard) {
+                addHighlight(firstCard);
+                updateConsole(
+                    `const card = selectOne('.sandbox-card');\n// or document.querySelector('.sandbox-card')\n\ncard.classList.add('highlight');`,
+                    `Selected first occurrence of .sandbox-card using querySelector. Highlighted element.`
+                );
+            }
+        });
+
+        document.getElementById('btn-select-query-all').addEventListener('click', () => {
+            const allCards = selectAll('.card-grid .sandbox-card');
+            allCards.forEach(card => addHighlight(card));
+            
+            updateConsole(
+                `const cards = selectAll('.card-grid .sandbox-card');\n// or document.querySelectorAll('.card-grid .sandbox-card')\n\ncards.forEach(card => {\n    card.classList.add('highlight');\n});`,
+                `Selected ${allCards.length} cards using querySelectorAll. Looped through NodeList to highlight each.`
+            );
+        });
+
+        // 2. Element Creation & Deletion
+        function generateRandomText() {
+            const texts = [
+                "Dynamically added element demonstrating runtime insertion.",
+                "Custom visual item created using JavaScript appendChild API.",
+                "Styling and animation automatically applied on DOM insertion.",
+                "This node was inserted at runtime. Click to inspect it."
+            ];
+            return texts[Math.floor(Math.random() * texts.length)];
+        }
+
+        document.getElementById('btn-append').addEventListener('click', () => {
+            cardCounter++;
+            const newId = `card-${cardCounter}`;
+            const newCard = createNewElement('div', {
+                'class': 'sandbox-card',
+                'id': newId
+            });
+            
+            const idDiv = createNewElement('div', { 'class': 'card-id' }, `#${newId}`);
+            const titleDiv = createNewElement('div', { 'class': 'card-title' }, `Appended Item`);
+            const textDiv = createNewElement('div', { 'class': 'card-text' }, generateRandomText());
+            
+            appendElement(newCard, idDiv);
+            appendElement(newCard, titleDiv);
+            appendElement(newCard, textDiv);
+            
+            appendElement(cardGrid, newCard);
+            addHighlight(newCard);
+
+            updateConsole(
+                `const newCard = document.createElement('div');\nnewCard.className = 'sandbox-card';\nnewCard.id = '${newId}';\n\n// Create and append child nodes...\nnewCard.appendChild(idDiv);\nnewCard.appendChild(titleDiv);\nnewCard.appendChild(textDiv);\n\ncardGrid.appendChild(newCard);`,
+                `Created new element <div id="${newId}"> and appended as last child of card grid.`
+            );
+        });
+
+        document.getElementById('btn-prepend').addEventListener('click', () => {
+            cardCounter++;
+            const newId = `card-${cardCounter}`;
+            const newCard = createNewElement('div', {
+                'class': 'sandbox-card',
+                'id': newId
+            });
+            
+            const idDiv = createNewElement('div', { 'class': 'card-id' }, `#${newId}`);
+            const titleDiv = createNewElement('div', { 'class': 'card-title' }, `Prepended Item`);
+            const textDiv = createNewElement('div', { 'class': 'card-text' }, generateRandomText());
+            
+            appendElement(newCard, idDiv);
+            appendElement(newCard, titleDiv);
+            appendElement(newCard, textDiv);
+            
+            prependElement(cardGrid, newCard);
+            addHighlight(newCard);
+
+            updateConsole(
+                `const newCard = document.createElement('div');\nnewCard.className = 'sandbox-card';\nnewCard.id = '${newId}';\n\n// Prepend as first child of container\ncardGrid.prepend(newCard);`,
+                `Created new element <div id="${newId}"> and prepended as first child of card grid.`
+            );
+        });
+
+        document.getElementById('btn-remove-last').addEventListener('click', () => {
+            const cards = cardGrid.children;
+            if (cards.length > 0) {
+                const lastCard = cards[cards.length - 1];
+                const cardId = lastCard.id;
+                
+                // Add fade out animation first
+                lastCard.classList.add('fade-out');
+                
+                // Wait for animation, then remove
+                lastCard.addEventListener('animationend', () => {
+                    removeElement(lastCard);
+                }, { once: true });
+
+                updateConsole(
+                    `const lastCard = cardGrid.children[cardGrid.children.length - 1];\n\n// Animate out, then remove from tree\nlastCard.classList.add('fade-out');\nlastCard.addEventListener('animationend', () => {\n    lastCard.remove(); // or parent.removeChild(lastCard)\n});`,
+                    `Removed element #${cardId} from the DOM tree after fade-out completed.`
+                );
+            } else {
+                updateConsole(
+                    `// No cards left in cardGrid to remove`,
+                    `Warning: No card elements remaining to remove.`
+                );
+            }
+        });
+
+        // Custom Insertion via Form
+        document.getElementById('btn-add-custom').addEventListener('click', () => {
+            const titleInput = document.getElementById('input-card-title');
+            const titleText = titleInput.value.trim() || "Untitled Custom Card";
+            
+            cardCounter++;
+            const newId = `card-${cardCounter}`;
+            const newCard = createNewElement('div', {
+                'class': 'sandbox-card',
+                'id': newId
+            });
+            
+            const idDiv = createNewElement('div', { 'class': 'card-id' }, `#${newId}`);
+            const titleDiv = createNewElement('div', { 'class': 'card-title' }, titleText);
+            const textDiv = createNewElement('div', { 'class': 'card-text' }, "Custom inputs taken from the text field dynamically at runtime.");
+            
+            appendElement(newCard, idDiv);
+            appendElement(newCard, titleDiv);
+            appendElement(newCard, textDiv);
+            
+            appendElement(cardGrid, newCard);
+            addHighlight(newCard);
+            
+            titleInput.value = ''; // Reset input
+
+            updateConsole(
+                `const title = document.getElementById('input-card-title').value;\nconst card = createNewElement('div', { class: 'sandbox-card' }, ...);\n\ncardGrid.appendChild(card);`,
+                `Read custom text input: "${titleText}". Appended new custom card #${newId} to grid.`
+            );
+        });
+
+        // 3. Styling & Attributes
+        document.getElementById('btn-toggle-theme').addEventListener('click', () => {
+            const hasLightTheme = toggleElementClass(document.body, 'light-theme');
+            
+            updateConsole(
+                `const hasLight = document.body.classList.toggle('light-theme');`,
+                `Toggled 'light-theme' class on body element. Current mode: ${hasLightTheme ? 'Light Theme' : 'Dark Theme'}.`
+            );
+        });
+
+        document.getElementById('btn-random-style').addEventListener('click', () => {
+            const cards = selectAll('.sandbox-card');
+            if (cards.length === 0) {
+                updateConsole(`// No cards available to style`, `Warning: No cards found to apply random styles.`);
+                return;
+            }
+            
+            const randomIndex = Math.floor(Math.random() * cards.length);
+            const targetCard = cards[randomIndex];
+            
+            // Random linear gradient selection
+            const gradients = [
+                "linear-gradient(135deg, #f43f5e 0%, #fb7185 100%)",
+                "linear-gradient(135deg, #10b981 0%, #34d399 100%)",
+                "linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%)",
+                "linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)",
+                "linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%)"
+            ];
+            const randomGrad = gradients[Math.floor(Math.random() * gradients.length)];
+            
+            setInlineStyle(targetCard, 'background', randomGrad);
+            setInlineStyle(targetCard, 'borderColor', 'transparent');
+            addHighlight(targetCard);
+
+            updateConsole(
+                `const card = cards[${randomIndex}];\ncard.style.background = "${randomGrad}";\ncard.style.borderColor = "transparent";`,
+                `Modified inline background style dynamically on card #${targetCard.id}.`
+            );
+        });
+
+        document.getElementById('btn-set-attribute').addEventListener('click', () => {
+            const cards = selectAll('.sandbox-card');
+            if (cards.length === 0) {
+                updateConsole(`// No cards to add attributes to`, `Warning: No cards found to set badge attribute.`);
+                return;
+            }
+            
+            const targetCard = cards[Math.floor(Math.random() * cards.length)];
+            
+            // Create a badge if it doesn't exist
+            let badge = targetCard.querySelector('.card-badge');
+            if (!badge) {
+                badge = createNewElement('div', { 'class': 'card-badge' }, 'UPDATED');
+                appendElement(targetCard, badge);
+            }
+            
+            // Add custom data attribute
+            setDatasetValue(targetCard, 'status', 'modified');
+            addHighlight(targetCard);
+
+            updateConsole(
+                `const card = selectById('${targetCard.id}');\n// Append child badge node\nconst badge = createNewElement('div', { class: 'card-badge' }, 'UPDATED');\ncard.appendChild(badge);\n\n// Set HTML5 data-status attribute\ncard.dataset.status = 'modified';`,
+                `Added child badge overlay element and injected data-status="modified" on #${targetCard.id}.`
+            );
+        });
+
+        // 4. Traversal
+        document.getElementById('btn-traverse-sibling').addEventListener('click', () => {
+            const card1 = selectById('card-1');
+            if (!card1) {
+                updateConsole(`// #card-1 must be present`, `Warning: #card-1 is missing. Reset page to test.`);
+                return;
+            }
+            
+            const nextSibling = traverseDOM(card1, 'nextSibling');
+            
+            if (nextSibling) {
+                // Highlight visual traversal
+                card1.classList.add('highlight-traversal');
+                nextSibling.classList.add('highlight-traversal');
+                
+                setTimeout(() => {
+                    card1.classList.remove('highlight-traversal');
+                    nextSibling.classList.remove('highlight-traversal');
+                }, 1200);
+
+                updateConsole(
+                    `const card1 = selectById('card-1');\nconst nextCard = card1.nextElementSibling;\n\n// Highlight elements...`,
+                    `Navigated from #${card1.id} to next element sibling #${nextSibling.id} using .nextElementSibling.`
+                );
+            } else {
+                updateConsole(
+                    `const card1 = selectById('card-1');\nconst nextCard = card1.nextElementSibling; // null`,
+                    `Navigated from #card-1 to next sibling, which was null (no sibling exists).`
+                );
+            }
+        });
+
+        document.getElementById('btn-traverse-parent').addEventListener('click', () => {
+            const card1 = selectById('card-1');
+            if (!card1) {
+                updateConsole(`// #card-1 must be present`, `Warning: #card-1 is missing.`);
+                return;
+            }
+            const parent = traverseDOM(card1, 'parent');
+            
+            if (parent) {
+                parent.classList.add('highlight-traversal');
+                setTimeout(() => parent.classList.remove('highlight-traversal'), 1200);
+
+                updateConsole(
+                    `const card1 = selectById('card-1');\nconst parent = card1.parentElement;\n\nparent.classList.add('highlight-traversal');`,
+                    `Navigated from child #card-1 to its parent element <div class="card-grid"> using .parentElement.`
+                );
+            }
+        });
+
+        document.getElementById('btn-traverse-children').addEventListener('click', () => {
+            const children = traverseDOM(cardGrid, 'children');
+            
+            Array.from(children).forEach(child => {
+                child.classList.add('highlight-traversal');
+                setTimeout(() => child.classList.remove('highlight-traversal'), 1200);
+            });
+
+            updateConsole(
+                `const grid = selectById('card-grid-container');\nconst children = grid.children;\n\nArray.from(children).forEach(child => {\n    child.classList.add('highlight-traversal');\n});`,
+                `Retrieved all ${children.length} direct children of .card-grid container using .children collection.`
+            );
+        });
+
+        // 5. Event Delegation Setup
+        // Listen on the delegation area container (parent) and look for buttons
+        const delegationZone = document.getElementById('delegation-zone');
+        
+        addEventDelegation(delegationZone, '.delegation-btn', 'click', (event, targetButton) => {
+            const action = targetButton.getAttribute('data-action');
+            addHighlight(targetButton);
+            
+            if (action === 'delete') {
+                logOutput.textContent = `[${new Date().toLocaleTimeString()}] Logs cleared via delegation button.`;
+            }
+            
+            updateConsole(
+                `// Listening on parent element delegation-zone\ncontainer.addEventListener('click', (event) => {\n    const button = event.target.closest('.delegation-btn');\n    if (button) {\n        const action = button.getAttribute('data-action');\n        // Run code matching action: "${action}"\n    }\n});`,
+                `Event Delegation: Bubbled click on <button class="delegation-btn"> intercepted by parent container. Action: "${action.toUpperCase()}".`
+            );
+        });
+
+        // Individual Card Click Selection Setup (Direct binding on initial elements)
+        function setupDirectCardClick(card) {
+            addEventListener(card, 'click', (e) => {
+                // Ensure clicks to sub-elements (like attributes/badge) still target card ID
+                const cardEl = e.currentTarget;
+                addHighlight(cardEl);
+                
+                updateConsole(
+                    `card.addEventListener('click', (event) => {\n    const target = event.currentTarget;\n    target.classList.add('highlight');\n});`,
+                    `Direct Event Handler: Click detected directly on card #${cardEl.id}.`
+                );
+            });
+        }
+        
+        // Bind to current cards
+        Array.from(cardGrid.children).forEach(card => setupDirectCardClick(card));
+
+        // Let dynamically added cards also hook into direct listener (or we could use delegation, but let's show direct addition)
+        const originalAppendElement = appendElement;
+        appendElement = function(parent, child) {
+            originalAppendElement(parent, child);
+            if (child.classList.contains('sandbox-card')) {
+                setupDirectCardClick(child);
+            }
+        };
+
+        const originalPrependElement = prependElement;
+        prependElement = function(parent, child) {
+            originalPrependElement(parent, child);
+            if (child.classList.contains('sandbox-card')) {
+                setupDirectCardClick(child);
+            }
+        };
+    </script>
+</body>
+</html>
