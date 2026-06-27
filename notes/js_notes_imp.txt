@@ -1,0 +1,125 @@
+================================================================================
+                         IMPORTANT JAVASCRIPT NOTES (IMP)
+================================================================================
+
+--------------------------------------------------------------------------------
+1. SCOPE & HOISTING (var vs let vs const)
+--------------------------------------------------------------------------------
+* var: 
+  - Function-scoped.
+  - Can be redeclared and updated.
+  - Hoisted to the top of its scope and initialized as `undefined`.
+* let: 
+  - Block-scoped `{}`.
+  - Can be updated but NOT redeclared in the same scope.
+  - Hoisted to the top of its block but NOT initialized (Temporal Dead Zone - TDZ).
+* const: 
+  - Block-scoped `{}`.
+  - Cannot be updated or redeclared (must be initialized at declaration).
+  - Note: Objects/arrays declared with const can have their properties modified.
+
+* Temporal Dead Zone (TDZ): 
+  - The period between variable creation (binding) and its declaration where access results in a ReferenceError.
+
+--------------------------------------------------------------------------------
+2. DATA TYPES & COMPARISON
+--------------------------------------------------------------------------------
+* Primitive types (Pass-by-value): 
+  - string, number, boolean, undefined, null, symbol, bigint.
+* Structural types (Pass-by-reference): 
+  - object (including arrays, functions, dates, regEx).
+
+* Equality Operators:
+  - Loose Equality (==): Performs type coercion before comparing (e.g., `5 == "5"` is true).
+  - Strict Equality (===): Compares both value and type without coercion (e.g., `5 === "5"` is false).
+  - Object.is(a, b): Similar to ===, but handles special cases: `Object.is(NaN, NaN)` is true, and `Object.is(0, -0)` is false.
+
+--------------------------------------------------------------------------------
+3. FUNCTIONS & 'this' KEYWORD
+--------------------------------------------------------------------------------
+* Regular Functions:
+  - Have their own `arguments` object.
+  - Dynamic `this` binding: value of `this` depends on HOW the function is invoked (e.g., method call, simple function call, constructor call).
+* Arrow Functions (() => {}):
+  - Do NOT have their own `arguments` object (use rest parameter instead).
+  - Lexical `this`: inherit `this` from the enclosing scope. Cannot be used as constructors (no `new` keyword).
+* IIFE (Immediately Invoked Function Expression):
+  - `(function() { ... })();` - executes immediately, useful for isolating scopes.
+* Call, Apply, Bind:
+  - call(): Invokes a function immediately, passing `this` value and arguments individually (`fn.call(ctx, arg1, arg2)`).
+  - apply(): Invokes a function immediately, passing `this` value and arguments as an array (`fn.apply(ctx, [arg1, arg2])`).
+  - bind(): Returns a new copy of the function with bound `this` and arguments to be executed later.
+
+--------------------------------------------------------------------------------
+4. CLOSURES & LEXICAL SCOPE
+--------------------------------------------------------------------------------
+* Lexical Scope: Inner functions have access to the variables defined in their outer scope.
+* Closure: 
+  - A function combined with references to its surrounding state (the lexical environment).
+  - Allows an inner function to access the scope of an outer function even after the outer function has returned.
+  - Example/Use Case: Data privacy (private variables), function factories, memoization.
+
+--------------------------------------------------------------------------------
+5. PROTOTYPES & ES6 CLASSES
+--------------------------------------------------------------------------------
+* Prototypal Inheritance:
+  - Every JS object has a private property (referred to as `[[Prototype]]`) linking to another object called its prototype.
+  - Property lookup travels up the prototype chain until it finds the property or reaches `null`.
+* ES6 Classes:
+  - Syntactic sugar over prototypal inheritance.
+  - Use `constructor()`, `super()`, `extends`, `static` methods.
+
+--------------------------------------------------------------------------------
+6. ASYNCHRONOUS JAVASCRIPT & THE EVENT LOOP
+--------------------------------------------------------------------------------
+* Callbacks: Passing functions as arguments to execute after an async operation. Can lead to "Callback Hell".
+* Promises: Represent completion/failure of an async operation. States: Pending, Fulfilled, Rejected.
+  - Promise.all(): Resolves when all resolve, rejects if any rejects.
+  - Promise.allSettled(): Resolves when all settle (regardless of success/failure).
+  - Promise.race(): Resolves/rejects as soon as the first promise settles.
+  - Promise.any(): Resolves as soon as the first promise resolves successfully.
+* Async/Await: Syntactic sugar on top of Promises for writing asynchronous code in a synchronous style.
+* Event Loop:
+  - Call Stack: Keeps track of function execution (LIFO).
+  - Web APIs: Handles asynchronous tasks (timers, fetch requests, DOM events) offloaded from the call stack.
+  - Callback Queue (Macrotask Queue): setTimeout, setInterval, setImmediate, I/O tasks.
+  - Microtask Queue: Promise callbacks (.then/.catch/await resume), MutationObserver, queueMicrotask.
+  - Execution Priority: Call Stack is cleared -> Microtask Queue is cleared entirely -> One Macrotask is pulled -> Repeat.
+
+--------------------------------------------------------------------------------
+7. DOM MANIPULATION & EVENT FLOW
+--------------------------------------------------------------------------------
+* Selectors: `querySelector()`, `querySelectorAll()`, `getElementById()`.
+* Event Flow Phases:
+  1. Capture Phase: Event goes down from window/document to target.
+  2. Target Phase: Event reaches target element.
+  3. Bubbling Phase: Event bubbles up from target back to window/document (default phase for addEventListener).
+* Event Delegation: 
+  - Adding a single event listener to a parent element to manage events for all descendants, using `event.target` to identify which child triggered it.
+* preventDefault() vs stopPropagation():
+  - preventDefault(): Cancels the default action of the event (e.g., form submit reloading page).
+  - stopPropagation(): Prevents the event from bubbling up the DOM tree.
+
+--------------------------------------------------------------------------------
+8. ESSENTIAL ARRAY & OBJECT METHODS
+--------------------------------------------------------------------------------
+* Pure vs Impure Methods:
+  - Pure (returns new array): map(), filter(), slice(), concat(), [...arr].
+  - Impure (mutates original): push(), pop(), shift(), unshift(), splice(), sort(), reverse().
+* reduce():
+  - Accumulates array values to a single result: `arr.reduce((acc, curr) => acc + curr, initialValue)`.
+* Object Methods:
+  - Object.keys(), Object.values(), Object.entries()
+  - Object.freeze() (deep freeze requires recursion), Object.seal().
+
+--------------------------------------------------------------------------------
+9. MODERN ES6+ FEATURES
+--------------------------------------------------------------------------------
+* Destructuring: `const { name, age } = person;` or `const [first, second] = arr;`
+* Spread (...) vs Rest (...) parameters:
+  - Spread: Expands elements (`const newArr = [...arr1, ...arr2]`).
+  - Rest: Gathers elements into an array (`const sum = (...args) => {}`).
+* Optional Chaining (?.): Safely access nested properties without TypeError (`user?.profile?.name`).
+* Nullish Coalescing (??): Returns right-hand operand only if left-hand is `null` or `undefined` (unlike `||` which checks for all falsy values like `0`, `""`, `false`).
+
+================================================================================
