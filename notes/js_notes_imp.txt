@@ -122,4 +122,56 @@
 * Optional Chaining (?.): Safely access nested properties without TypeError (`user?.profile?.name`).
 * Nullish Coalescing (??): Returns right-hand operand only if left-hand is `null` or `undefined` (unlike `||` which checks for all falsy values like `0`, `""`, `false`).
 
+--------------------------------------------------------------------------------
+10. LOOP TYPES & ITERATION
+--------------------------------------------------------------------------------
+* Standard for loop:
+  - Used when the number of iterations is known beforehand.
+  - Example:
+    for (let i = 0; i < 3; i++) {
+      console.log(i); // 0, 1, 2
+    }
+
+* while loop:
+  - Executes as long as the condition is true. The condition is evaluated BEFORE the loop body runs.
+  - Example:
+    let count = 0;
+    while (count < 3) {
+      console.log(count++); // 0, 1, 2
+    }
+
+* do...while loop:
+  - Executes the block once BEFORE checking the condition, then repeats as long as the condition is true.
+  - Example:
+    let x = 0;
+    do {
+      console.log(x++); // 0
+    } while (x < 0);
+
+* for...in loop:
+  - Iterates over the enumerable properties (keys) of an object (including inherited prototype properties).
+  - Recommended for objects, NOT arrays (keys are returned as strings, order is not guaranteed).
+  - Example:
+    const obj = { a: 1, b: 2 };
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        console.log(`${key}: ${obj[key]}`); // "a: 1", "b: 2"
+      }
+    }
+
+* for...of loop:
+  - Iterates over iterable objects (Arrays, Strings, Maps, Sets, NodeLists).
+  - Directly accesses the values of the iterable.
+  - Example:
+    const arr = ['a', 'b', 'c'];
+    for (const val of arr) {
+      console.log(val); // 'a', 'b', 'c'
+    }
+
+* forEach() method:
+  - An Array method that executes a provided callback function once for each element.
+  - Unlike loops, you cannot use `break` or `continue` to exit/skip iterations in `forEach()`.
+  - Example:
+    ['x', 'y'].forEach((item, index) => console.log(item, index)); // "x 0", "y 1"
+
 ================================================================================
