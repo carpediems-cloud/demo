@@ -5,202 +5,484 @@
 --------------------------------------------------------------------------------
 1. THE CSS BOX MODEL & BOX SIZING
 --------------------------------------------------------------------------------
-* Components of the Box Model:
-  - Content: The actual text, image, or content area.
-  - Padding: Space between content and the border. Inside the background color.
-  - Border: Wraps around padding and content.
-  - Margin: Space outside the border, separating the element from neighbors. Margins can collapse vertically.
+* Visual Representation of the Box Model:
+  +-------------------------------------------------------------+
+  | MARGIN (Space outside border; can collapse vertically)      |
+  |   +-----------------------------------------------------+   |
+  |   | BORDER (Wraps padding/content; custom style/color)  |   |
+  |   |   +---------------------------------------------+   |   |
+  |   |   | PADDING (Space inside background color)     |   |   |
+  |   |   |   +-------------------------------------+   |   |   |
+  |   |   |   | CONTENT (Text, image, nested boxes) |   |   |   |
+  |   |   |   +-------------------------------------+   |   |   |
+  |   |   +---------------------------------------------+   |   |
+  |   +-----------------------------------------------------+   |
+  +-------------------------------------------------------------+
+
+* Box Model Components:
+  - Content: The core element rendering area where text/images reside.
+  - Padding: Clearance around the content area, inside the border. Inherits background.
+  - Border: The line separating padding and margin. Configured with style, width, color.
+  - Margin: Outer clearance separating the element from sibling/parent elements.
+            Margins are transparent and do not adopt the element's background color.
+
+* Margin Collapsing Rules:
+  - Definition: Adjacent vertical margins of block-level elements in normal flow collapse
+    into a single margin equal to the maximum of the adjacent margins.
+  - When it happens:
+    1. Adjacent siblings: Bottom margin of one element meets top margin of the next.
+    2. Parent & first/last child: No padding, border, or inline content separates them.
+    3. Empty blocks: No height, min-height, border, padding, or inline content.
+  - Prevention techniques:
+    1. Use padding or border on the parent.
+    2. Establish a new block formatting context (BFC) e.g., `display: flow-root`,
+       `position: absolute`, or using Flexbox/Grid containers.
+    3. Set `overflow: auto` or `overflow: hidden` on the parent.
+
 * Box Sizing Properties:
-  - content-box (Default): Width and height only set the content area.
-    Total Width = width + padding-left + padding-right + border-left + border-right.
-  - border-box (Recommended): Width and height include padding and borders.
-    Total Width = width. Content area shrinks to fit.
-  - Standard Reset:
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+  - content-box (Default):
+    Width and height apply ONLY to the content area.
+    Formula: Total Width = width + padding-left + padding-right + border-left + border-right
+    Example: `width: 200px; padding: 20px; border: 5px solid;` -> Total rendered width = 250px.
+  - border-box (Recommended):
+    Width and height include padding and borders. Content area shrinks to accommodate.
+    Formula: Total Width = width (padding and borders are subtracted from the set width).
+    Example: `width: 200px; padding: 20px; border: 5px solid;` -> Total rendered width = 200px (content width = 150px).
+
+* Standard Universal Box-Sizing Reset:
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
 
 --------------------------------------------------------------------------------
 2. SELECTORS, SPECIFICITY & CASCADE
 --------------------------------------------------------------------------------
+* The Cascade Process (Determines which style rules apply when conflicts occur):
+  1. Importance/Origin: User Agent (browser defaults) < User Styles < Author Styles (developer CSS) < Author `!important` < User `!important` < Transition styles.
+  2. Specificity: If origins match, the rule with higher selector specificity wins.
+  3. Source Order: If specificity matches, the last declared rule in the CSS file wins.
+
+* Selector Specificity Scorecard:
+  Calculated as a 3-part vector: (A, B, C)
+  - Column A (IDs): Weight of 100 (e.g., `#header`, `#nav-bar`).
+  - Column B (Classes, Pseudo-classes, Attributes): Weight of 10 (e.g., `.btn`, `:hover`, `[type="text"]`).
+  - Column C (Elements, Pseudo-elements): Weight of 1 (e.g., `div`, `p`, `::before`, `::after`).
+  
+  Note: Inline styles (e.g., `style="color: red;"`) override stylesheets (weight: 1000).
+  Universal selector (`*`), combinators (`+`, `>`, `~`), and `:where()` add 0 specificity.
+
+* Specificity Examples:
+  - `ul li a`                         -> 0, 0, 3  (Score: 3)
+  - `.nav li a`                       -> 0, 1, 2  (Score: 12)
+  - `.nav li a:hover`                 -> 0, 2, 2  (Score: 22)
+  - `#header .nav-item[data-active]`  -> 1, 2, 0  (Score: 120)
+
 * Combinators:
-  - Descendant Space (`A B`): Matches all `B` inside `A`.
-  - Child (`A > B`): Matches direct child `B` of `A`.
-  - Adjacent Sibling (`A + B`): Matches `B` immediately after `A`.
-  - General Sibling (`A ~ B`): Matches all `B` siblings after `A`.
-* Specificity Hierarchy (from highest to lowest weight):
-  1. Inline styles (e.g., `style="color: red;"`) - weight: 1,000.
-  2. IDs (e.g., `#header`) - weight: 100.
-  3. Classes, Pseudo-classes, Attributes (e.g., `.btn`, `:hover`, `[type="text"]`) - weight: 10.
-  4. Elements and Pseudo-elements (e.g., `div`, `h1`, `::before`) - weight: 1.
-  5. Universal selector (`*`), combinators, and `:where()` - weight: 0.
-* Specificity Calculation Example:
-  - `div.sidebar ul li a:hover` -> 1 class (`.sidebar`), 1 pseudo-class (`:hover`), 4 elements (`div`, `ul`, `li`, `a`) -> Specificity = 0, 0, 2, 4 (value: 24).
-* !important Rule:
-  - Overrides all other declarations, even inline styles.
-  - Use with caution; breaks natural cascade behavior. Can be overridden only by another `!important` declaration with higher specificity.
-* :where() vs :is():
-  - `:is()` takes the specificity of its most specific argument.
-  - `:where()` always has 0 specificity.
+  - Descendant Space (`A B`): Any matching child/grandchild `B` nested anywhere within `A`.
+  - Child (`A > B`): Direct immediate child `B` of `A`.
+  - Adjacent Sibling (`A + B`): Matches `B` ONLY if it immediately follows `A` at the same hierarchy level.
+  - General Sibling (`A ~ B`): Matches all `B` siblings that follow after `A` in the markup.
+
+* Pseudo-classes vs. Pseudo-elements:
+  - Pseudo-classes (`:` single colon): Represent state/interaction or DOM hierarchy.
+    Examples: `:hover`, `:focus`, `:first-child`, `:nth-child(2n)`, `:not(.disabled)`.
+  - Pseudo-elements (`::` double colons): Create/style a specific virtual part of an element.
+    Examples: `::before` (adds content at start), `::after` (adds content at end), `::placeholder`, `::selection`.
+
+* Special Pseudo-selectors:
+  - `:is(A, B, C)`: Takes the specificity of its most specific selector argument.
+  - `:where(A, B, C)`: Specificity is always 0, making overrides easy.
+  - `:not(A)`: Takes the specificity of the selector inside its parentheses.
 
 --------------------------------------------------------------------------------
 3. CSS UNITS (Absolute vs Relative)
 --------------------------------------------------------------------------------
 * Absolute Units:
-  - px (Pixels): Anchor unit (1px = 1/96th of 1 inch). Does not scale with user settings.
-* Relative to Font Size:
-  - em: Relative to the font-size of the element itself (for padding/margins) or the parent element (for font-size). Can compound/nest.
-  - rem: Relative to the font-size of the root element (`<html>`). Default is usually 16px. Prevents compounding, excellent for accessibility and layout scaling.
-* Relative to Viewport:
-  - vw / vh: 1% of the viewport width / height.
+  - px (Pixels): Anchor unit based on physical pixels (1px = 1/96th of an inch). 
+    Used for borders, shadows, or small decorative sizes where scaling is undesired.
+    Does not respond when users zoom/resize root font size (raises accessibility issues if used for main copy).
+
+* Relative Units:
+  - % (Percentage): Relative to the parent element's corresponding property value.
+  - em:
+    - On font-size: Relative to the parent element's font-size.
+    - On other properties (padding, margin, width): Relative to the element's own font-size.
+    - Compound risk: Nesting ems aggregates sizing (e.g., nesting 1.5em list inside 1.5em list makes sub-list text 2.25em).
+  - rem (Root em):
+    - Relative to the font-size of the root element (usually `<html>`, defaults to 16px).
+    - Eliminates compounding. Recommended for scalable layouts and accessible typography.
+  - ex / ch: Relative to the x-height / width of the "0" (zero) character of the element's font.
+
+* Viewport Sizing Units:
+  - vw / vh: 1% of the viewport's total width / height.
   - vmin / vmax: 1% of the viewport's smaller / larger dimension.
-  - dvw / dvh (Dynamic Viewport): Accounts for dynamic browser UI elements like address bars on mobile.
-  - svh / lvh (Small / Large Viewport): Calculated with browser UI fully expanded / collapsed.
+  - svw / svh (Small): Calculated when dynamic browser UI (like address bars) is fully expanded.
+  - lvw / lvh (Large): Calculated when dynamic browser UI is fully retracted.
+  - dvw / dvh (Dynamic): Dynamically adjusts as the browser UI scrolls/resizes.
+
+* Container Query Units (Requires container-type to be set on an ancestor):
+  - cqw / cqh: 1% of the container's query width / height.
+  - cqmin / cqmax: 1% of the container's smaller / larger query dimension.
+  - cqi / cqb: 1% of the container's inline size (width in horizontal writing mode) / block size.
+
+* CSS Sizing Best Practices:
+  - Typography: Use `rem` for readability and accessibility (allows browser default font-size zooming).
+  - Spacing (Padding/Margin): Use `rem` for layout alignment, `em` for margins/paddings that should scale proportionally with local font sizes (e.g., button padding).
+  - Component Sizing: Use container units `cqw`/`cqi` or percentages `%` rather than viewport units `vw` to make components truly reusable.
 
 --------------------------------------------------------------------------------
 4. POSITIONING SCHEMES
 --------------------------------------------------------------------------------
-* Position values:
-  - static (Default): Follows normal page flow. Top, right, bottom, left, and z-index have no effect.
-  - relative: Positioned relative to its normal position. Still occupies its original space in the document flow.
-  - absolute: Removed from normal flow. Positioned relative to its closest positioned ancestor (anything other than static). If none, positions relative to the initial containing block (viewport).
-  - fixed: Removed from normal flow. Positioned relative to the viewport. Stays in the same place even when scrolled.
-  - sticky: Hybrid of relative and fixed. Behaves like relative until it crosses a specified threshold (e.g., `top: 10px`), then behaves like fixed within its parent container.
+* Positioning Types:
+  - static (Default): The element flows naturally in the document order. Offset properties (top, left, etc.) and z-index are ignored.
+  - relative:
+    - Positioned relative to its normal position in the document flow.
+    - The space it originally occupied remains reserved in the layout.
+    - Serves as the containing block anchor for nested `absolute` elements.
+  - absolute:
+    - Removed from the normal document flow; other elements layout as if it wasn't there.
+    - Positioned relative to its nearest ancestor that has a position other than `static` (relative, absolute, fixed, sticky).
+    - If no positioned ancestor exists, it is placed relative to the initial containing block (the viewport/page boundary).
+  - fixed:
+    - Removed from normal flow. Positioned relative to the viewport container.
+    - Remains locked in its viewport coordinates even when the page is scrolled.
+  - sticky:
+    - Hybrid of `relative` and `fixed`.
+    - Acts as `relative` until the element reaches a threshold boundary (e.g., `top: 20px`), then behaves as `fixed` inside its parent.
+    - Scroll boundary is constrained by its parent element's dimensions.
+
+* Sticky Positioning Troubleshooting Checklist:
+  - Is a threshold offset specified? Sticky requires at least one coordinates parameter (e.g., `top: 0`, `bottom: 10px`, `left: 0`).
+  - Does an ancestor have `overflow: hidden`, `scroll`, or `auto`? Any overflow-cutting ancestor breaks sticky positioning.
+  - Does the parent have height? If the parent is the same height as the sticky element, there is no scrollable track for it to slide.
+  - Is the display value block-level? Sticky behaves unpredictably on table elements unless properly targeted.
+
 * Stacking Context & z-index:
-  - z-index only works on positioned elements (relative, absolute, fixed, sticky) and flex/grid items.
-  - A Stacking Context is formed by elements with position relative/absolute + z-index (not auto), position fixed/sticky, opacity < 1, transform/filter/clip-path, etc.
-  - Elements inside a child stacking context cannot be positioned above elements in a higher stacking context, regardless of how large their z-index is.
+  - `z-index` manages depth (3rd dimension) and only applies to positioned elements or flex/grid children.
+  - A Stacking Context is established by:
+    1. Root element (`<html>`).
+    2. Position relative/absolute + z-index (value other than auto).
+    3. Position fixed/sticky.
+    4. Flex/Grid children with z-index other than auto.
+    5. Opacity less than 1.
+    6. Transform, filter, clip-path, perspective, or mix-blend-mode properties.
+    7. Container query containers or will-change properties.
+  - Stacking Context Inheritance rule: Elements inside a stacking context are stacked relative to each other. They cannot be raised above elements in a parent/sibling stacking context that has a higher stacking hierarchy, no matter how large their z-index value is.
 
 --------------------------------------------------------------------------------
 5. FLEXBOX (Flexible Box Layout)
 --------------------------------------------------------------------------------
-* Flexbox operates on a single axis (row or column).
-* Parent Properties (Flex Container):
+* Design Goal: A one-dimensional layout model (aligns elements either in a row OR a column).
+  Distributes space and aligns items along a single main axis and a cross axis.
+
+* Container Properties (Parent):
   - display: flex | inline-flex;
   - flex-direction: row (default) | row-reverse | column | column-reverse;
   - flex-wrap: nowrap (default) | wrap | wrap-reverse;
-  - justify-content (aligns items along MAIN axis): flex-start | flex-end | center | space-between | space-around | space-evenly;
-  - align-items (aligns items along CROSS axis): stretch (default) | flex-start | flex-end | center | baseline;
-  - align-content (aligns multi-line flex containers): stretch | flex-start | flex-end | center | space-between | space-around;
-  - gap (row-gap, column-gap): Defines spacing between grid/flex items directly.
-* Child Properties (Flex Items):
-  - flex-grow: Ability of item to grow if space is available (unitless number, default: 0).
-  - flex-shrink: Ability of item to shrink if space is insufficient (unitless number, default: 1).
-  - flex-basis: Default size of an element before remaining space is distributed (e.g., `auto`, `200px`).
-  - flex shorthand: `flex: <flex-grow> <flex-shrink> <flex-basis>` (e.g., `flex: 1 1 0` or `flex: 0 1 auto`).
-  - align-self: Allows overriding align-items for a single item.
-  - order: Changes visual order of items (default: 0).
+  - flex-flow: Shorthand for `<flex-direction> <flex-wrap>` (e.g., `flex-flow: row wrap`).
+  - justify-content (Aligns items along the MAIN axis):
+    - flex-start (pack items to start) | flex-end (pack to end) | center (center align)
+    - space-between (margins to edges, even spaces between)
+    - space-around (even spaces around each item; side margins are half-size)
+    - space-evenly (spaces between any two items and edges are equal)
+  - align-items (Aligns items along the CROSS axis):
+    - stretch (default, fills height/width) | flex-start | flex-end | center | baseline (aligns by text baseline)
+  - align-content (Aligns multi-line flex container tracks when there is extra space):
+    - stretch | flex-start | flex-end | center | space-between | space-around
+  - gap / row-gap / column-gap: Sets spacing directly between flex items without margin issues.
+
+* Item Properties (Children):
+  - order: Controls visual rendering order (integer value, default is 0).
+  - align-self: Overrides default container `align-items` for a specific item.
+  
+  - flex-grow: Factor by which item grows to claim remaining space (default: 0).
+  - flex-shrink: Factor by which item shrinks if space is constrained (default: 1).
+  - flex-basis: Initial size of the item before space is distributed (e.g., `auto`, `250px`, `0`).
+  
+  - Flex Shorthand: `flex: <flex-grow> <flex-shrink> <flex-basis>` (Highly recommended).
+    - `flex: 1` -> translates to `1 1 0%` (grows/shrinks equally, base size 0%).
+    - `flex: auto` -> translates to `1 1 auto` (grows/shrinks, base size content-driven).
+    - `flex: initial` -> translates to `0 1 auto` (doesn't grow, shrinks, base size content-driven).
+    - `flex: none` -> translates to `0 0 auto` (rigid, doesn't grow/shrink).
+
+* Common Flexbox Patterns:
+  - Perfect Centering:
+    .container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+  - Split Layout (Pushing items apart):
+    .container { display: flex; }
+    .right-item { margin-left: auto; } /* Pushes right-item and subsequent elements to the far right */
+  - Sticky Footer Layout:
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    main { flex: 1 0 auto; } /* Expands to fill empty space, pushing footer down */
+    footer { flex-shrink: 0; }
 
 --------------------------------------------------------------------------------
 6. CSS GRID LAYOUT
 --------------------------------------------------------------------------------
-* Grid operates on a two-dimensional system (rows AND columns).
-* Parent Properties (Grid Container):
+* Design Goal: A two-dimensional layout model (handles both rows AND columns simultaneously).
+  Defines explicit grid areas, grid tracks, and grid lines.
+
+* Comparison Matrix: Flexbox vs. Grid
+  +--------------------------------+------------------------------------------+
+  | FEATURE                        | FLEXBOX                                  | CSS GRID                                 |
+  +--------------------------------+------------------------------------------+------------------------------------------+
+  | Dimension                      | One-Dimensional (1D)                     | Two-Dimensional (2D)                      |
+  | Approach                       | Content-First (items flow, then wrap)    | Layout-First (define tracks, place items)|
+  | Alignments                     | Main & Cross axis properties             | Rows & Columns properties                |
+  | Overlapping                    | Hard to achieve without absolute positioning | Extremely simple using overlapping area coordinates |
+  +--------------------------------+------------------------------------------+------------------------------------------+
+
+* Container Properties (Parent):
   - display: grid | inline-grid;
-  - grid-template-columns / grid-template-rows: Defines columns/rows (e.g., `100px 1fr 2fr`, `repeat(3, 1fr)`).
-  - grid-template-areas: Names grid areas for layout mapping (e.g., `"header header" "sidebar main" "footer footer"`).
-  - gap / column-gap / row-gap: Sets gutters between tracks.
-  - justify-items (inline/row axis alignment) & align-items (block/column axis alignment).
-  - justify-content & align-content (tracks alignment within grid container).
-* Grid Units & Functions:
-  - fr: Fractional unit, representing a fraction of free space (e.g., `1fr 2fr` distributes remaining space as 1/3 and 2/3).
-  - minmax(min, max): Defines a size range (e.g., `minmax(200px, 1fr)`).
-  - auto-fill: Fills row with as many columns as possible, creating empty tracks if needed.
-  - auto-fit: Fills row and collapses empty tracks, stretching remaining columns to fill space.
-* Child Properties (Grid Items):
-  - grid-column / grid-row: Shorthand for start/end lines (e.g., `grid-column: 1 / 3` or `grid-column: span 2`).
-  - grid-area: Refers to named template area or shorthand for row-start / col-start / row-end / col-end.
+  - grid-template-columns / grid-template-rows: Define grid tracks.
+    Examples:
+      - `grid-template-columns: 150px 1fr 2fr;` (Absolute first column, remaining space split 1/3 and 2/3)
+      - `grid-template-columns: repeat(3, 1fr);` (Three equal width columns)
+  - grid-template-areas: Names grid cells for layout visualization.
+    Example:
+      grid-template-areas:
+        "header header header"
+        "sidebar main main"
+        "footer footer footer";
+  - gap / row-gap / column-gap: Spacing between grid lines.
+  - grid-auto-columns / grid-auto-rows: Specifies track size for implicitly created tracks.
+  - grid-auto-flow: row (default) | column | dense (fills in empty gaps).
+
+* Grid Layout Functions & Keywords:
+  - fr (Fractional Unit): Represents a fraction of the remaining free space in the grid container.
+  - minmax(min, max): Sets constraints. E.g., `minmax(100px, 1fr)` ensures a column is at least 100px but expands to 1fr.
+  - auto-fill vs. auto-fit (Used with repeat):
+    - `repeat(auto-fill, minmax(200px, 1fr))`: Creates as many 200px tracks as fit. If container has extra space, tracks remain empty.
+    - `repeat(auto-fit, minmax(200px, 1fr))`: Creates tracks and collapses any empty tracks, stretching active tracks to fill remaining space.
+
+* Item Properties (Children):
+  - grid-column-start / grid-column-end / grid-row-start / grid-row-end:
+    Specify item placement based on grid line numbers (lines start at 1; negative numbers reference from the end).
+    Shorthands:
+      - `grid-column: 1 / 3;` (Starts at line 1, ends at line 3; spans 2 columns)
+      - `grid-column: span 2;` (Spans 2 tracks from current position)
+      - `grid-column: 1 / -1;` (Spans from the first column line to the last column line, i.e., full width)
+  - grid-area: Placed inside a template area. E.g., `grid-area: main;` or shorthand for row-start / col-start / row-end / col-end.
+
+* Common Grid Layout Patterns:
+  - Responsive Card Grid (No Media Queries):
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+  - Holy Grail Layout:
+    .parent {
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      grid-template-columns: 200px 1fr;
+      grid-template-areas:
+        "header header"
+        "sidebar main"
+        "footer footer";
+      height: 100vh;
+    }
+    .header { grid-area: header; }
+    .sidebar { grid-area: sidebar; }
+    .main { grid-area: main; }
+    .footer { grid-area: footer; }
 
 --------------------------------------------------------------------------------
 7. RESPONSIVE DESIGN, MEDIA & CONTAINER QUERIES
 --------------------------------------------------------------------------------
-* Responsive Viewport Meta Tag (essential in HTML <head>):
+* Viewport Meta Tag (Crucial for mobile rendering):
   `<meta name="viewport" content="width=device-width, initial-scale=1.0">`
+  Without this, mobile browsers simulate desktop screen resolutions (~980px wide), scaling elements down.
+
 * Media Queries:
-  - Apply styles based on device characteristics (width, orientation, resolution, hover support, color-scheme).
-  - Mobile-First Approach (using min-width):
-    /* Base styles for mobile */
-    .container { width: 100%; }
-    
-    /* Tablet & Small Desktop breakpoint */
+  - Query device size, color options, screen density, orientation, color-schemes, or hover support.
+  - Mobile-First Approach (Recommended):
+    Styles default to mobile, and media queries scale UP using `min-width`. Saves performance on mobile.
+    /* Base styles (Mobile) */
+    .card { flex-direction: column; }
+    /* Tablet Styles */
     @media (min-width: 768px) {
-      .container { width: 750px; }
+      .card { flex-direction: row; }
     }
-    
-    /* Large Desktop breakpoint */
-    @media (min-width: 1200px) {
-      .container { width: 1170px; }
+  - Desktop-First Approach:
+    Styles default to desktop, and media queries scale DOWN using `max-width`.
+    /* Base styles (Desktop) */
+    .card { flex-direction: row; }
+    /* Mobile Styles */
+    @media (max-width: 767px) {
+      .card { flex-direction: column; }
     }
+
 * Container Queries:
-  - Style elements based on the size of their parent container rather than viewport width.
-  - Step 1: Define container context on parent:
-    `.card-container { container-type: inline-size; container-name: card; }`
-  - Step 2: Use query:
-    `@container card (min-width: 400px) { .card { display: flex; } }`
-* Dark Mode / Themes:
-  `@media (prefers-color-scheme: dark) { ... }`
+  - Allows an element to query its parent container's width/inline-size rather than the viewport. Perfect for modular components.
+  - Setup:
+    1. Define container type on the parent:
+       .card-wrapper {
+         container-type: inline-size;
+         container-name: card-container;
+       }
+    2. Style the child based on the container context:
+       @container card-container (min-width: 400px) {
+         .card-content {
+           display: grid;
+           grid-template-columns: 1fr 2fr;
+         }
+       }
+
+* Preference Media Queries (Accessibility & Performance):
+  - prefers-reduced-motion:
+    Detects if the user has requested the system minimize animations/motions.
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  - prefers-color-scheme:
+    @media (prefers-color-scheme: dark) {
+      body { background-color: #121212; color: #ffffff; }
+    }
 
 --------------------------------------------------------------------------------
 8. TRANSITIONS, TRANSFORMS & KEYFRAME ANIMATIONS
 --------------------------------------------------------------------------------
-* Transitions (State A to State B):
-  - Requires a trigger (e.g., `:hover`, class toggle).
+* Transitions (State A to State B with trigger):
   - Syntax: `transition: <property> <duration> <timing-function> <delay>;`
-  - Example: `transition: background-color 0.3s ease-in-out, transform 0.2s;`
-* Transforms (Visual modification of coordinates):
-  - Does not disrupt document flow.
+  - Shorthand example: `transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.3s ease;`
+  - Easing Functions:
+    - `ease` (default): Fast start, slow end.
+    - `linear`: Constant speed.
+    - `ease-in`: Slow start, fast end.
+    - `ease-out`: Fast start, slow end (optimal for exit animations).
+    - `ease-in-out`: Slow start, accelerate, slow end.
+    - `cubic-bezier(x1, y1, x2, y2)`: Completely customized acceleration curve.
+
+* Transforms (Coordinate system modifications):
+  - Do not trigger page reflows or paints. Highly performant.
   - Common functions: `translate(x, y)`, `scale(x, y)`, `rotate(deg)`, `skew(deg)`.
-  - Best for performance as they run on the GPU (compositor layer).
-* Keyframe Animations:
-  - Define custom animations that play automatically without triggers.
-  - Define:
-    @keyframes slideIn {
-      from { transform: translateX(-100%); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
+  - Can trigger 3D acceleration using `translate3d(x, y, z)` or setting perspective.
+
+* Keyframe Animations (Automatic, complex timelines):
+  - Setup: Define keyframes timeline.
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 0.8; }
+      50% { transform: scale(1.05); opacity: 1; }
+      100% { transform: scale(1); opacity: 0.8; }
     }
   - Apply:
-    `.element { animation: slideIn 0.5s cubic-bezier(0.25, 1, 0.5, 1) forwards; }`
+    .button-active {
+      animation: pulse 2s infinite ease-in-out;
+    }
+
+* Browser Rendering Stages & Performance Implications:
+  1. JS/CSS Changes -> 2. Style Calculations -> 3. Layout (Reflow) -> 4. Paint -> 5. Composite.
+  - Layout / Reflow (Expensive): Triggered by altering shape/position variables (`width`, `height`, `margin`, `padding`, `top`, `left`, `display`). Causes browser to recalculate element geometries.
+  - Paint (Moderate): Triggered by visual/color alterations (`color`, `background-color`, `border-color`, `box-shadow`). Redraws pixels on screen.
+  - Compositing (Inexpensive): Triggered by modifying variables processed by the GPU (`transform`, `opacity`). The browser sends layers directly to GPU memory, avoiding layout recalculation and repainting.
+  - Optimization tip: Use `will-change: transform, opacity;` on active animation elements to notify the browser to create a separate compositor layer. Use sparingly to prevent GPU memory depletion.
 
 --------------------------------------------------------------------------------
 9. CSS VARIABLES (Custom Properties)
 --------------------------------------------------------------------------------
-* Declaration:
-  - Declared on an element scope. `:root` represents the global scope (HTML tag).
-  - Syntax: `--variable-name: value;`
+* Syntax & Scoping:
+  - Declared with a double dash `--` prefix.
+  - Inherited downwards following normal CSS cascade rules.
+  - Global variables are declared on the `:root` pseudo-class (which maps to `<html>`).
   - Example:
     :root {
-      --primary-color: #0066cc;
-      --font-size-base: 1rem;
+      --primary-color: #007bff;
+      --font-scale: 1.2rem;
     }
-* Usage:
-  - Using the `var()` function, with optional fallback values.
-  - Example: `color: var(--primary-color);`
-  - Example with fallback: `background: var(--bg-color, #ffffff);`
-* Benefits:
-  - Dynamic runtime updates (can be modified with JavaScript via `element.style.setProperty()`).
-  - Great for theming (e.g., overriding variables in a `.dark-theme` class).
-  - Follows normal cascade and inheritance.
+    .card {
+      --primary-color: #ff5722; /* Overrides value for .card and all its descendants */
+    }
+
+* Usage and Fallback:
+  - Evaluated using the `var()` function.
+  - Syntax: `color: var(--variable-name, fallback-value);`
+  - Example: `color: var(--text-color, #333333);`
+
+* Dynamic Themes & HSL Colors:
+  Using HSL (Hue, Saturation, Lightness) with custom properties allows simple theme adjustments:
+  :root {
+    --theme-hue: 210; /* Blue */
+    --primary: hsl(var(--theme-hue), 100%, 50%);
+    --primary-light: hsl(var(--theme-hue), 100%, 80%);
+    --primary-dark: hsl(var(--theme-hue), 100%, 30%);
+  }
+
+* JavaScript Interaction:
+  CSS custom properties can be read and set dynamically via JS APIs:
+  // Read value
+  const rootStyles = getComputedStyle(document.documentElement);
+  const primaryColor = rootStyles.getPropertyValue('--primary-color').trim();
+
+  // Set/Write value
+  document.documentElement.style.setProperty('--primary-color', '#ff5722');
+  
+  // Set local variable on specific element
+  const button = document.querySelector('.btn');
+  button.style.setProperty('--btn-bg', 'red');
 
 --------------------------------------------------------------------------------
 10. MODERN CSS FEATURES & BEST PRACTICES
 --------------------------------------------------------------------------------
 * Math Functions:
-  - calc(): Combine different units (e.g., `width: calc(100% - 20px);`).
-  - clamp(): Clamps a value between a minimum, preferred, and maximum value.
-    `font-size: clamp(1rem, 2.5vw, 2rem);` (Highly responsive typography).
-  - min() and max(): Selects the smallest / largest value from a list.
+  - calc(): Evaluates expressions with mixed units. E.g., `width: calc(100% - 2rem);`
+  - min(): Chooses the smallest value from a comma-separated list. E.g., `width: min(800px, 90%);`
+  - max(): Chooses the largest value from a list. E.g., `padding: max(20px, 5%);`
+  - clamp(MIN, VAL, MAX): Clamps a preferred value between a lower and upper bound.
+    Example (Fluid Typography): `font-size: clamp(1rem, 2.5vw + 0.5rem, 2.5rem);`
+
+* Native CSS Nesting (Now widely supported):
+  - Nest selectors directly inside the parent block, reducing redundancy.
+  - Use `&` to represent the parent selector (essential for state rules/combinators).
+  Example:
+    .card {
+      background-color: white;
+      border: 1px solid #ccc;
+      
+      &:hover {
+        border-color: #007bff;
+      }
+      
+      .title {
+        font-size: 1.5rem;
+      }
+    }
+
+* Logical Properties (Internationalization / RTL-Friendly):
+  - Replaces physical directions (top, bottom, left, right) with flow-relative directions (block, inline).
+  - Block axis: Top-to-bottom (in horizontal text).
+  - Inline axis: Left-to-right (in horizontal English text, right-to-left in Arabic).
+  - Conversions:
+    - `margin-left` / `margin-right` -> `margin-inline-start` / `margin-inline-end`
+    - `padding-top` / `padding-bottom` -> `padding-block-start` / `padding-block-end`
+    - `width` / `height` -> `inline-size` / `block-size`
+
 * Subgrid (CSS Grid level 2):
-  - Inherits the grid track sizes from a parent grid container, aligning nested grid items with the outer grid.
-  - `grid-template-columns: subgrid;`
-* Logical Properties (Internationalization-friendly):
-  - margin-block-start instead of margin-top.
-  - margin-inline-start instead of margin-left.
-* CSS Nesting (Native, now widely supported):
-  .card {
-    background: white;
-    &:hover { background: #f0f0f0; }
-    .card-title { font-weight: bold; }
-  }
+  - Nested grid item inherits the grid definition (lines and gap size) of the parent grid.
+  - Aligns sibling nested items (e.g. card headers inside card components) across columns/rows.
+  - Example:
+    .card-grid {
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+    }
+    .card-container {
+      grid-row: span 3;
+      display: grid;
+      grid-template-rows: subgrid; /* Inherits the 3 rows from the card-grid parent */
+    }
 ================================================================================
