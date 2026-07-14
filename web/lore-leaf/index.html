@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LoreLeaf | Read, Learn, Explore</title>
+    <!-- Meta Descriptions for SEO -->
+    <meta name="description" content="LoreLeaf - A premium reading space combining classic literature with curated fun facts, vocabulary, and interactive trivia in a gorgeous, user-friendly interface.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Premium Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="theme-light font-serif">
+    
+    <!-- Top Premium Navigation Bar -->
+    <header class="app-header" id="app-header">
+        <div class="header-logo">
+            <span class="logo-icon"><i class="fa-solid fa-leaf"></i></span>
+            <h1 class="logo-title">LoreLeaf</h1>
+        </div>
+        
+        <nav class="header-nav" id="main-nav">
+            <button class="nav-btn active" id="nav-btn-reader" data-target="section-reader">
+                <i class="fa-solid fa-book-open"></i> Novel Reader
+            </button>
+            <button class="nav-btn" id="nav-btn-facts" data-target="section-facts">
+                <i class="fa-solid fa-lightbulb"></i> Fact board
+            </button>
+            <button class="nav-btn" id="nav-btn-saved" data-target="section-saved">
+                <i class="fa-solid fa-bookmark"></i> Saved Items
+            </button>
+        </nav>
+        
+        <div class="header-actions">
+            <!-- Reading Settings Toggle -->
+            <button class="action-circle-btn" id="btn-reading-settings" title="Adjust Typography">
+                <i class="fa-solid fa-font"></i>
+            </button>
+            <!-- Theme Changer -->
+            <button class="action-circle-btn" id="btn-theme-cycle" title="Change Theme">
+                <i class="fa-solid fa-circle-half-stroke"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Reading Settings Overlay (Popup Card) -->
+    <div class="settings-overlay hidden" id="settings-overlay">
+        <div class="settings-card">
+            <div class="settings-card-header">
+                <h3>Reading Preferences</h3>
+                <button class="close-btn" id="btn-close-settings">&times;</button>
+            </div>
+            <div class="settings-group">
+                <label>Theme</label>
+                <div class="theme-grid">
+                    <button class="theme-selector light active" data-theme="light">Light</button>
+                    <button class="theme-selector sepia" data-theme="sepia">Sepia</button>
+                    <button class="theme-selector green" data-theme="green">Sage</button>
+                    <button class="theme-selector dark" data-theme="dark">Dark</button>
+                </div>
+            </div>
+            <div class="settings-group">
+                <label>Font Style</label>
+                <div class="font-switch">
+                    <button class="font-selector active" id="selector-font-serif">Elegant Serif</button>
+                    <button class="font-selector" id="selector-font-sans">Modern Sans</button>
+                </div>
+            </div>
+            <div class="settings-group">
+                <label>Font Size</label>
+                <div class="size-controls">
+                    <button class="size-btn" id="btn-font-dec"><i class="fa-solid fa-minus"></i></button>
+                    <span class="size-display" id="font-size-display">18px</span>
+                    <button class="size-btn" id="btn-font-inc"><i class="fa-solid fa-plus"></i></button>
+                </div>
+            </div>
+            <div class="settings-group">
+                <label>Line Height</label>
+                <div class="height-switch">
+                    <button class="height-selector" data-height="1.4">Tight</button>
+                    <button class="height-selector active" data-height="1.7">Relaxed</button>
+                    <button class="height-selector" data-height="2.0">Loose</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <main class="main-content">
+        
+        <!-- SECTION 1: NOVEL READER -->
+        <section class="app-section active" id="section-reader">
+            <div class="reader-layout">
+                
+                <!-- Left Sidebar: Chapter List -->
+                <aside class="reader-sidebar left" id="chapter-sidebar">
+                    <div class="sidebar-header">
+                        <h3>Library</h3>
+                    </div>
+                    <div class="book-selector-container">
+                        <select id="book-select" class="premium-select">
+                            <!-- Populated by JS -->
+                        </select>
+                    </div>
+                    <ul class="chapter-list" id="chapter-list">
+                        <!-- Populated by JS -->
+                    </ul>
+                </aside>
+
+                <!-- Center Panel: The Reading Space -->
+                <article class="reader-pane">
+                    <!-- Top chapter progression indicator -->
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="reading-progress"></div>
+                    </div>
+                    
+                    <div class="reader-body">
+                        <!-- Metadata and Controls -->
+                        <div class="reader-meta">
+                            <span class="book-title-badge" id="meta-book-title">Novel</span>
+                            <span class="word-count-badge" id="meta-word-count">0 words</span>
+                        </div>
+                        
+                        <div class="book-text-container" id="book-text-area">
+                            <!-- Novel content loaded here dynamically -->
+                        </div>
+                        
+                        <!-- Back / Next Nav buttons -->
+                        <div class="reader-nav-footer">
+                            <button class="footer-nav-btn" id="btn-prev-chapter">
+                                <i class="fa-solid fa-chevron-left"></i> Previous Chapter
+                            </button>
+                            <span class="chapter-footer-label" id="footer-chapter-label">Chapter 1 of 10</span>
+                            <button class="footer-nav-btn" id="btn-next-chapter">
+                                Next Chapter <i class="fa-solid fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Floating Reader Toolbar -->
+                    <div class="floating-reader-toolbar">
+                        <button class="tool-btn" id="btn-speak" title="Listen (Text-to-Speech)">
+                            <i class="fa-solid fa-volume-high"></i> <span class="btn-text">Listen</span>
+                        </button>
+                        <button class="tool-btn" id="btn-bookmark-page" title="Bookmark current chapter">
+                            <i class="fa-regular fa-bookmark"></i> <span class="btn-text">Bookmark</span>
+                        </button>
+                        <button class="tool-btn" id="btn-toggle-info-sidebar" title="Toggle Trivia Sideboard">
+                            <i class="fa-solid fa-lightbulb"></i> <span class="btn-text">Trivia (3)</span>
+                        </button>
+                    </div>
+                </article>
+
+                <!-- Right Sidebar: Contextual Facts & Vocabulary -->
+                <aside class="reader-sidebar right" id="info-sidebar">
+                    <div class="sidebar-header">
+                        <h3>Lore & Trivia</h3>
+                        <button class="close-sidebar-btn" id="btn-close-info-sidebar">&times;</button>
+                    </div>
+                    <div class="sidebar-content" id="context-info-area">
+                        <!-- Dynamic trivia/vocab/facts appear here based on selected novel and position -->
+                    </div>
+                </aside>
+                
+            </div>
+        </section>
+
+        <!-- SECTION 2: CURATED FACTS BOARD -->
+        <section class="app-section" id="section-facts">
+            <div class="facts-container">
+                <div class="facts-header-block">
+                    <h2>Facts & Trivia Board</h2>
+                    <p>Click on any card to flip it and reveal the details. Save your favorite cards to review later.</p>
+                    
+                    <!-- Categories selector -->
+                    <div class="category-filters" id="facts-categories">
+                        <button class="filter-btn active" data-category="all">All</button>
+                        <button class="filter-btn" data-category="science">Science</button>
+                        <button class="filter-btn" data-category="history">History</button>
+                        <button class="filter-btn" data-category="literature">Literature</button>
+                        <button class="filter-btn" data-category="space">Space</button>
+                    </div>
+                </div>
+
+                <!-- Facts Cards Grid -->
+                <div class="facts-grid" id="facts-grid">
+                    <!-- Populated by JS -->
+                </div>
+                
+                <!-- Quick Fact Generator -->
+                <div class="quick-fact-card">
+                    <div class="quick-fact-header">
+                        <h3><i class="fa-solid fa-dice"></i> Instant Fact Generator</h3>
+                    </div>
+                    <div class="quick-fact-body">
+                        <p id="generated-fact-text">Click the button below to generate a fascinating random fact from our encyclopedic logs.</p>
+                        <span class="fact-tag" id="generated-fact-tag">Discovery</span>
+                    </div>
+                    <div class="quick-fact-actions">
+                        <button class="action-btn secondary" id="btn-save-generated-fact">
+                            <i class="fa-solid fa-plus"></i> Save Fact
+                        </button>
+                        <button class="action-btn primary" id="btn-generate-fact">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Next Random Fact
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: SAVED BINDINGS -->
+        <section class="app-section" id="section-saved">
+            <div class="saved-container">
+                <div class="saved-header">
+                    <h2>Your Bookmarks & Saved Items</
+                    <p>Access your saved facts, quotes, and book chapters here.</p>
+                </div>
+                
+                <div class="saved-sub-sections">
+                    <!-- Left: Bookmarks -->
+                    <div class="saved-block">
+                        <h3><i class="fa-solid fa-bookmark text-primary"></i> Chapter Bookmarks</h3>
+                        <div class="saved-list" id="saved-chapters-list">
+                            <!-- Populated by JS -->
+                            <p class="empty-state">No chapters bookmarked yet. Use the bookmark button inside the Novel Reader.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Right: Saved Facts -->
+                    <div class="saved-block">
+                        <h3><i class="fa-solid fa-lightbulb text-accent"></i> Saved Facts</h3>
+                        <div class="saved-list" id="saved-facts-list">
+                            <!-- Populated by JS -->
+                            <p class="empty-state">No facts saved yet. Add some from the Facts Board or the random generator!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Notification system -->
+    <div class="notification-container" id="notification-container"></div>
+
+    <!-- JS Scripts -->
+    <script src="script.js"></script>
+</body>
+</html>
