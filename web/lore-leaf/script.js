@@ -154,6 +154,73 @@ const RANDOM_FACTS = [
     { text: "The first novel ever written is widely considered to be 'The Tale of Genji', written in Japan in the 11th century by Murasaki Shikibu.", tag: "Literature" }
 ];
 
+// ── Database: Quiz Questions ────────────────────────────────────────────────
+const QUIZ_QUESTIONS = {
+    alice: [
+        {
+            question: "What color eyes did the White Rabbit have?",
+            options: ["Blue", "Pink", "Yellow", "Red"],
+            answer: 1,
+            explanation: "The White Rabbit that Alice saw running by had pink eyes."
+        },
+        {
+            question: "Why did Alice get tired on the bank?",
+            options: [
+                "She was reading a boring textbook",
+                "She had nothing to do and her sister's book had no pictures or conversations",
+                "She was chasing a wild rabbit",
+                "She had to make a daisy-chain for her sister"
+            ],
+            answer: 1,
+            explanation: "Alice complained that her sister's book was useless because it had no pictures or conversations."
+        },
+        {
+            question: "How tall did Alice grow in Chapter II?",
+            options: ["Five feet high", "Nine feet high", "Twelve feet high", "Six feet high"],
+            answer: 1,
+            explanation: "After drinking the liquid, Alice's head struck the roof of the hall, and she grew to over nine feet high."
+        }
+    ],
+    time_machine: [
+        {
+            question: "What is the Fourth Dimension according to the Time Traveller?",
+            options: ["Space", "Gravity", "Time", "Electricity"],
+            answer: 2,
+            explanation: "The Time Traveller explains that there is no difference between Time and any of the three dimensions of Space, except that our consciousness moves along it."
+        },
+        {
+            question: "What was the physical appearance of the Time Traveller's face when expounding his theory?",
+            options: [
+                "Flushed and animated",
+                "Frightened and dark",
+                "Laughing and mocking",
+                "Tired and sleepy"
+            ],
+            answer: 0,
+            explanation: "His face was pale usually but was described as flushed and animated while explaining."
+        }
+    ],
+    sherlock: [
+        {
+            question: "To Sherlock Holmes, who is 'THE woman'?",
+            options: ["Mrs. Hudson", "Irene Adler", "Mary Morstan", "Helen Stoner"],
+            answer: 1,
+            explanation: "To Sherlock Holmes, Irene Adler is always 'the woman' because she was one of the few who outsmarted him."
+        },
+        {
+            question: "How did Holmes view the softer passions?",
+            options: [
+                "With deep longing and sadness",
+                "With a gibe and a sneer",
+                "As essential to the reasoning mind",
+                "With complete ignorance"
+            ],
+            answer: 1,
+            explanation: "Holmes never spoke of the softer passions save with a gibe and a sneer, viewing them as distracting factors to logical deduction."
+        }
+    ]
+};
+
 // ── App State Management ───────────────────────────────────────────────────
 let state = {
     activeSection: "section-reader",
@@ -169,6 +236,8 @@ let state = {
     // Saved database
     savedChapters: [], // array of objects { bookId, chapterIdx, title, timestamp }
     savedFacts: [],    // array of objects { id, text, category/tag, timestamp }
+    annotations: [],   // Highlights/Notes database
+    quizScores: {},    // Quiz stats database
     
     // TTS system
     isSpeaking: false,
@@ -212,6 +281,20 @@ function loadSettingsFromStorage() {
     if (storedFacts) {
         try {
             state.savedFacts = JSON.parse(storedFacts);
+        } catch (e) {}
+    }
+    
+    const storedAnnotations = localStorage.getItem("loreleaf_saved_annotations");
+    if (storedAnnotations) {
+        try {
+            state.annotations = JSON.parse(storedAnnotations);
+        } catch (e) {}
+    }
+    
+    const storedQuiz = localStorage.getItem("loreleaf_quiz_scores");
+    if (storedQuiz) {
+        try {
+            state.quizScores = JSON.parse(storedQuiz);
         } catch (e) {}
     }
     
@@ -410,6 +493,99 @@ function initUI() {
     document.querySelector(".reader-pane").addEventListener("scroll", (e) => {
         updateReadingProgress(e.target);
     });
+    
+    // Ambient sound popup toggle
+    const soundToggle = document.getElementById("btn-toggle-sound");
+    const soundPopup = document.getElementById("sound-popup");
+    
+    if (soundToggle && soundPopup) {
+        soundToggle.addEventListener("click", (e) => {
+            soundPopup.classList.toggle("hidden");
+            e.stopPropagation();
+        });
+        
+        document.addEventListener("click", (e) => {
+            if (soundPopup && !soundPopup.contains(e.target) && e.target !== soundToggle) {
+                soundPopup.classList.add("hidden");
+            }
+        });
+        
+        // Ambient Sound Option Clicks
+        soundPopup.querySelectorAll(".sound-option").forEach(opt => {
+            opt.addEventListener("click", () => {
+                soundPopup.querySelectorAll(".sound-option").forEach(o => o.classList.remove("active"));
+                opt.classList.add("active");
+                
+                const soundType = opt.dataset.sound;
+                activeSoundType = soundType;
+                
+                if (soundType === "none") {
+                    stopFocusSounds();
+                    soundToggle.classList.remove("active");
+                    soundToggle.innerHTML = `<i class="fa-solid fa-headphones"></i> <span class="btn-text">Focus Sound</span>`;
+                    showNotification("Focus sound disabled");
+                } else {
+                    soundToggle.classList.add("active");
+                    soundToggle.innerHTML = `<i class="fa-solid fa-compact-disc fa-spin"></i> <span class="btn-text">Playing</span>`;
+                    if (soundType === "rain") {
+                        startRain();
+                        showNotification("Synthesizing Rain Sound...");
+                    } else if (soundType === "fire") {
+                        startFire();
+                        showNotification("Synthesizing Fire Crackles...");
+                    }
+                }
+                soundPopup.classList.add("hidden");
+            });
+        });
+        
+        // Volume slider control
+        document.getElementById("sound-volume").addEventListener("input", (e) => {
+            soundVolume = parseFloat(e.target.value);
+            if (gainNode) {
+                gainNode.gain.setValueAtTime(soundVolume, audioCtx.currentTime);
+            }
+        });
+    }
+    
+    // Paragraph Actions Popup events
+    document.querySelectorAll(".para-action-popup .para-action-btn[data-color]").forEach(btn => {
+        btn.addEventListener("click", () => {
+            highlightParagraph(selectedParaIdx, btn.dataset.color);
+        });
+    });
+    
+    document.getElementById("btn-clear-para-highlight").addEventListener("click", () => {
+        clearParagraphHighlight(selectedParaIdx);
+    });
+    
+    document.getElementById("btn-add-para-note").addEventListener("click", () => {
+        openNoteModal(selectedParaIdx);
+    });
+    
+    // Note Modal events
+    document.getElementById("btn-close-note-modal").addEventListener("click", () => {
+        document.getElementById("note-modal-overlay").classList.add("hidden");
+    });
+    
+    document.getElementById("btn-save-note").addEventListener("click", () => {
+        saveParagraphNote();
+    });
+    
+    document.getElementById("btn-delete-note").addEventListener("click", () => {
+        deleteParagraphNote();
+    });
+    
+    document.getElementById("note-modal-overlay").addEventListener("click", (e) => {
+        if (e.target === document.getElementById("note-modal-overlay")) {
+            document.getElementById("note-modal-overlay").classList.add("hidden");
+        }
+    });
+    
+    // Quiz navigation button binding
+    document.getElementById("nav-btn-quiz").addEventListener("click", () => {
+        initQuizStartScreen();
+    });
 }
 
 // ── Novel Reader Logic ──────────────────────────────────────────────────────
@@ -437,10 +613,23 @@ function loadChapter() {
     let contentHtml = `<h2>${chapter.title}</h2>`;
     
     chapter.content.forEach((para, idx) => {
-        contentHtml += `<p id="para-${idx}" data-idx="${idx}">${para}</p>`;
+        const ann = state.annotations.find(a => a.bookId === state.selectedBookId && a.chapterIdx === state.selectedChapterIndex && a.paraIdx === idx);
+        let paraClass = "";
+        if (ann) {
+            if (ann.color) paraClass = `highlight-${ann.color}`;
+            if (ann.note) paraClass += (paraClass ? " " : "") + "has-note";
+        }
+        contentHtml += `<p id="para-${idx}" data-idx="${idx}" class="${paraClass}">${para}</p>`;
     });
     
     textArea.innerHTML = contentHtml;
+    
+    // Paragraph click triggers
+    textArea.querySelectorAll("p").forEach(p => {
+        p.addEventListener("click", (e) => {
+            showParagraphPopup(p, e);
+        });
+    });
     
     // Render chapters list sidebar
     const chapterList = document.getElementById("chapter-list");
@@ -742,6 +931,7 @@ function saveGeneratedFact() {
 function renderSavedItems() {
     const chaptersList = document.getElementById("saved-chapters-list");
     const factsList = document.getElementById("saved-facts-list");
+    const annotationsList = document.getElementById("saved-annotations-list");
     
     // Render Chapters Bookmarks
     if (state.savedChapters.length === 0) {
@@ -788,6 +978,57 @@ function renderSavedItems() {
                 </div>
             </div>
         `).join("");
+    }
+
+    // Render Saved Annotations/Highlights
+    if (!annotationsList) return;
+    
+    if (state.annotations.length === 0) {
+        annotationsList.innerHTML = `<p class="empty-state">No annotations or highlights yet. Click any paragraph in the Novel Reader to highlight or add notes.</p>`;
+    } else {
+        annotationsList.innerHTML = state.annotations.map(ann => {
+            let typeBadge = "";
+            let cardStyle = "";
+            if (ann.color) {
+                typeBadge = `<span class="saved-card-tag" style="background-color: var(--accent-bg); color: var(--accent-color);">${ann.color.toUpperCase()} Highlight</span>`;
+                if (ann.color === 'sage') cardStyle = 'border-left: 4px solid #4a7c59;';
+                else if (ann.color === 'terracotta') cardStyle = 'border-left: 4px solid #b0572e;';
+                else if (ann.color === 'blue') cardStyle = 'border-left: 4px solid #2196f3;';
+            } else {
+                typeBadge = `<span class="saved-card-tag" style="background-color: var(--bg-secondary); color: var(--text-secondary);">Note Only</span>`;
+                cardStyle = 'border-left: 4px solid var(--text-muted);';
+            }
+            
+            return `
+                <div class="saved-item-card" style="${cardStyle}">
+                    <div class="saved-card-header">
+                        <div style="display: flex; gap: 0.5rem; align-items: center;">
+                            <span class="saved-card-tag">${ann.bookTitle.split("'s")[0]}</span>
+                            ${typeBadge}
+                        </div>
+                        <button class="saved-remove-btn" onclick="removeAnnotation('${ann.id}')" title="Remove Highlight/Note">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                    <div class="saved-card-content">
+                        <p class="font-serif italic" style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
+                            "${ann.text.substring(0, 180)}${ann.text.length > 180 ? '...' : ''}"
+                        </p>
+                        ${ann.note ? `
+                            <div style="background-color: var(--bg-secondary); padding: 0.75rem; border-radius: 6px; font-size: 0.9rem; border: 1px solid var(--border-color); margin-top: 0.5rem;">
+                                <strong>Note:</strong> ${ann.note}
+                            </div>
+                        ` : ''}
+                    </div>
+                    <div class="saved-card-footer">
+                        <span>Ch. ${ann.chapterIdx + 1} - Added: ${ann.timestamp}</span>
+                        <a href="#" class="saved-card-link" onclick="loadBookmarkedChapter('${ann.bookId}', ${ann.chapterIdx})">
+                            Go to Chapter <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                        </a>
+                    </div>
+                </div>
+            `;
+        }).join("");
     }
 }
 
@@ -843,6 +1084,7 @@ window.removeSavedFact = (factId) => {
 // ── Notification Toast System ──────────────────────────────────────────────
 function showNotification(message) {
     const container = document.getElementById("notification-container");
+    if (!container) return;
     const toast = document.createElement("div");
     toast.className = "notification";
     toast.innerHTML = `<i class="fa-solid fa-circle-check text-accent"></i> <span>${message}</span>`;
@@ -862,3 +1104,558 @@ function showNotification(message) {
         }, 350);
     }, 3000);
 }
+
+// ── Interactive Highlights & Annotations Logic ──────────────────────────────
+let selectedParaIdx = null;
+
+function showParagraphPopup(paraElement, event) {
+    selectedParaIdx = parseInt(paraElement.dataset.idx);
+    const popup = document.getElementById("para-action-popup");
+    if (!popup) return;
+    
+    popup.classList.remove("hidden");
+    
+    // Position popup centered above the paragraph
+    const rect = paraElement.getBoundingClientRect();
+    const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    
+    popup.style.top = `${rect.top + scrollTop - 45}px`;
+    popup.style.left = `${rect.left + scrollLeft + (rect.width / 2) - 90}px`;
+    
+    event.stopPropagation();
+    
+    // Document click to close popup
+    document.addEventListener("click", closeParaPopupOutside);
+}
+
+function closeParaPopupOutside(e) {
+    const popup = document.getElementById("para-action-popup");
+    if (popup && !popup.contains(e.target)) {
+        popup.classList.add("hidden");
+        document.removeEventListener("click", closeParaPopupOutside);
+    }
+}
+
+function hideParagraphPopup() {
+    const popup = document.getElementById("para-action-popup");
+    if (popup) popup.classList.add("hidden");
+    document.removeEventListener("click", closeParaPopupOutside);
+}
+
+function highlightParagraph(paraIdx, color) {
+    const bookId = state.selectedBookId;
+    const chapterIdx = state.selectedChapterIndex;
+    const book = NOVELS.find(b => b.id === bookId);
+    const chapter = book.chapters[chapterIdx];
+    const text = chapter.content[paraIdx];
+    
+    let ann = state.annotations.find(a => a.bookId === bookId && a.chapterIdx === chapterIdx && a.paraIdx === paraIdx);
+    
+    if (ann) {
+        ann.color = color;
+        ann.type = 'highlight';
+    } else {
+        ann = {
+            id: `ann-${Date.now()}`,
+            bookId,
+            bookTitle: book.title,
+            chapterIdx,
+            chapterTitle: chapter.title,
+            paraIdx,
+            text,
+            type: 'highlight',
+            color,
+            note: '',
+            timestamp: new Date().toLocaleDateString()
+        };
+        state.annotations.push(ann);
+    }
+    
+    // Update active paragraph in DOM
+    const para = document.getElementById(`para-${paraIdx}`);
+    if (para) {
+        para.classList.remove("highlight-sage", "highlight-terracotta", "highlight-blue");
+        para.classList.add(`highlight-${color}`);
+    }
+    
+    localStorage.setItem("loreleaf_saved_annotations", JSON.stringify(state.annotations));
+    renderSavedItems();
+    showNotification(`Paragraph highlighted: ${color.toUpperCase()}`);
+    hideParagraphPopup();
+}
+
+function clearParagraphHighlight(paraIdx) {
+    const bookId = state.selectedBookId;
+    const chapterIdx = state.selectedChapterIndex;
+    const index = state.annotations.findIndex(a => a.bookId === bookId && a.chapterIdx === chapterIdx && a.paraIdx === paraIdx);
+    
+    if (index > -1) {
+        const ann = state.annotations[index];
+        const para = document.getElementById(`para-${paraIdx}`);
+        
+        if (ann.note) {
+            ann.color = '';
+            ann.type = 'note';
+            if (para) {
+                para.classList.remove("highlight-sage", "highlight-terracotta", "highlight-blue");
+            }
+        } else {
+            state.annotations.splice(index, 1);
+            if (para) {
+                para.className = '';
+            }
+        }
+    }
+    
+    localStorage.setItem("loreleaf_saved_annotations", JSON.stringify(state.annotations));
+    renderSavedItems();
+    showNotification("Highlight Cleared");
+    hideParagraphPopup();
+}
+
+function openNoteModal(paraIdx) {
+    selectedParaIdx = paraIdx;
+    const bookId = state.selectedBookId;
+    const chapterIdx = state.selectedChapterIndex;
+    const book = NOVELS.find(b => b.id === bookId);
+    const chapter = book.chapters[chapterIdx];
+    const text = chapter.content[paraIdx];
+    
+    const ann = state.annotations.find(a => a.bookId === bookId && a.chapterIdx === chapterIdx && a.paraIdx === paraIdx);
+    
+    document.getElementById("note-quoted-text").innerText = `"${text.substring(0, 150)}${text.length > 150 ? '...' : ''}"`;
+    document.getElementById("note-textarea").value = ann ? ann.note : '';
+    document.getElementById("note-modal-overlay").classList.remove("hidden");
+    
+    hideParagraphPopup();
+}
+
+function saveParagraphNote() {
+    const noteText = document.getElementById("note-textarea").value.trim();
+    if (!noteText) {
+        showNotification("Please enter some text for the annotation.");
+        return;
+    }
+    
+    const bookId = state.selectedBookId;
+    const chapterIdx = state.selectedChapterIndex;
+    let ann = state.annotations.find(a => a.bookId === bookId && a.chapterIdx === chapterIdx && a.paraIdx === selectedParaIdx);
+    
+    if (ann) {
+        ann.note = noteText;
+        if (ann.type !== 'highlight') ann.type = 'note';
+    } else {
+        const book = NOVELS.find(b => b.id === bookId);
+        const chapter = book.chapters[chapterIdx];
+        const text = chapter.content[selectedParaIdx];
+        
+        ann = {
+            id: `ann-${Date.now()}`,
+            bookId,
+            bookTitle: book.title,
+            chapterIdx,
+            chapterTitle: chapter.title,
+            paraIdx: selectedParaIdx,
+            text,
+            type: 'note',
+            color: '',
+            note: noteText,
+            timestamp: new Date().toLocaleDateString()
+        };
+        state.annotations.push(ann);
+    }
+    
+    const para = document.getElementById(`para-${selectedParaIdx}`);
+    if (para) {
+        para.classList.add("has-note");
+    }
+    
+    localStorage.setItem("loreleaf_saved_annotations", JSON.stringify(state.annotations));
+    renderSavedItems();
+    showNotification("Annotation Saved Successfully!");
+    document.getElementById("note-modal-overlay").classList.add("hidden");
+}
+
+function deleteParagraphNote() {
+    const bookId = state.selectedBookId;
+    const chapterIdx = state.selectedChapterIndex;
+    const index = state.annotations.findIndex(a => a.bookId === bookId && a.chapterIdx === chapterIdx && a.paraIdx === selectedParaIdx);
+    
+    if (index > -1) {
+        const ann = state.annotations[index];
+        const para = document.getElementById(`para-${selectedParaIdx}`);
+        
+        if (ann.color) {
+            ann.note = '';
+            ann.type = 'highlight';
+            if (para) {
+                para.classList.remove("has-note");
+            }
+        } else {
+            state.annotations.splice(index, 1);
+            if (para) {
+                para.className = '';
+            }
+        }
+    }
+    
+    localStorage.setItem("loreleaf_saved_annotations", JSON.stringify(state.annotations));
+    renderSavedItems();
+    showNotification("Note Deleted");
+    document.getElementById("note-modal-overlay").classList.add("hidden");
+}
+
+window.removeAnnotation = (id) => {
+    const idx = state.annotations.findIndex(a => a.id === id);
+    if (idx > -1) {
+        const ann = state.annotations[idx];
+        state.annotations.splice(idx, 1);
+        localStorage.setItem("loreleaf_saved_annotations", JSON.stringify(state.annotations));
+        renderSavedItems();
+        showNotification("Annotation Removed");
+        
+        // Update DOM paragraph highlights if showing
+        if (state.selectedBookId === ann.bookId && state.selectedChapterIndex === ann.chapterIdx) {
+            const para = document.getElementById(`para-${ann.paraIdx}`);
+            if (para) {
+                para.className = '';
+            }
+        }
+    }
+};
+
+// ── Web Audio API Focus Sounds Synthesizer ─────────────────────────────────
+let audioCtx = null;
+let soundSourceNode = null;
+let crackleInterval = null;
+let gainNode = null;
+let soundVolume = 0.5;
+let activeSoundType = "none";
+
+function initAudioContext() {
+    if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        gainNode = audioCtx.createGain();
+        gainNode.gain.setValueAtTime(soundVolume, audioCtx.currentTime);
+        gainNode.connect(audioCtx.destination);
+    }
+    if (audioCtx.state === "suspended") {
+        audioCtx.resume();
+    }
+}
+
+function createWhiteNoiseBuffer() {
+    const sampleRate = audioCtx.sampleRate;
+    const bufferSize = 2 * sampleRate;
+    const noiseBuffer = audioCtx.createBuffer(1, bufferSize, sampleRate);
+    const output = noiseBuffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+        output[i] = Math.random() * 2 - 1;
+    }
+    return noiseBuffer;
+}
+
+function startRain() {
+    stopFocusSounds();
+    initAudioContext();
+    
+    const noiseBuffer = createWhiteNoiseBuffer();
+    const noiseNode = audioCtx.createBufferSource();
+    noiseNode.buffer = noiseBuffer;
+    noiseNode.loop = true;
+    
+    // Lowpass filter to wash out high frequencies of rain
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = "lowpass";
+    filter.frequency.setValueAtTime(700, audioCtx.currentTime);
+    
+    noiseNode.connect(filter);
+    filter.connect(gainNode);
+    
+    noiseNode.start();
+    soundSourceNode = noiseNode;
+    
+    // Periodic raindrop drops scheduler
+    crackleInterval = setInterval(() => {
+        if (Math.random() < 0.75) {
+            triggerRaindropPop();
+        }
+    }, 70);
+}
+
+function triggerRaindropPop() {
+    if (!audioCtx || audioCtx.state === "suspended") return;
+    
+    const osc = audioCtx.createOscillator();
+    const popGain = audioCtx.createGain();
+    
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(1100 + Math.random() * 900, audioCtx.currentTime);
+    
+    popGain.gain.setValueAtTime(0.015 * Math.random(), audioCtx.currentTime);
+    popGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.04);
+    
+    osc.connect(popGain);
+    popGain.connect(gainNode);
+    
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.05);
+}
+
+function startFire() {
+    stopFocusSounds();
+    initAudioContext();
+    
+    const noiseBuffer = createWhiteNoiseBuffer();
+    const noiseNode = audioCtx.createBufferSource();
+    noiseNode.buffer = noiseBuffer;
+    noiseNode.loop = true;
+    
+    // Lowpass filter for the warm logs hum
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = "lowpass";
+    filter.frequency.setValueAtTime(160, audioCtx.currentTime);
+    
+    noiseNode.connect(filter);
+    filter.connect(gainNode);
+    
+    noiseNode.start();
+    soundSourceNode = noiseNode;
+    
+    // Random crackle sparks
+    crackleInterval = setInterval(() => {
+        const rv = Math.random();
+        if (rv < 0.22) {
+            triggerFireCrackle(false);
+        } else if (rv < 0.26) {
+            triggerFireCrackle(true);
+        }
+    }, 130);
+}
+
+function triggerFireCrackle(isLoud) {
+    if (!audioCtx || audioCtx.state === "suspended") return;
+    
+    const bufferSize = audioCtx.sampleRate * 0.04;
+    const popBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const output = popBuffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+        output[i] = Math.random() * 2 - 1;
+    }
+    
+    const popNode = audioCtx.createBufferSource();
+    popNode.buffer = popBuffer;
+    
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = "bandpass";
+    filter.frequency.setValueAtTime(900 + Math.random() * 1900, audioCtx.currentTime);
+    filter.Q.setValueAtTime(3.0, audioCtx.currentTime);
+    
+    const popGain = audioCtx.createGain();
+    const peak = isLoud ? 0.06 : 0.02;
+    popGain.gain.setValueAtTime(peak * Math.random(), audioCtx.currentTime);
+    popGain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.03);
+    
+    popNode.connect(filter);
+    filter.connect(popGain);
+    popGain.connect(gainNode);
+    
+    popNode.start();
+    popNode.stop(audioCtx.currentTime + 0.04);
+}
+
+function stopFocusSounds() {
+    if (soundSourceNode) {
+        try {
+            soundSourceNode.stop();
+        } catch(e) {}
+        soundSourceNode = null;
+    }
+    if (crackleInterval) {
+        clearInterval(crackleInterval);
+        crackleInterval = null;
+    }
+}
+
+// ── Comprehension Quiz Logic ────────────────────────────────────────────────
+let currentQuizState = {
+    bookId: "",
+    activeQuestionIdx: 0,
+    score: 0,
+    selectedOptionIdx: null,
+    answered: false
+};
+
+function initQuizStartScreen() {
+    const book = NOVELS.find(b => b.id === state.selectedBookId);
+    const card = document.getElementById("quiz-card");
+    if (!card) return;
+    
+    card.innerHTML = `
+        <div class="quiz-start-state">
+            <h3>Ready to test your knowledge?</h3>
+            <p>This quiz will cover questions about <strong>${book.title}</strong>.</p>
+            <button class="action-btn primary" id="btn-start-quiz-now">Start Quiz</button>
+        </div>
+    `;
+    
+    document.getElementById("btn-start-quiz-now").addEventListener("click", startQuiz);
+}
+
+function startQuiz() {
+    currentQuizState.bookId = state.selectedBookId;
+    currentQuizState.activeQuestionIdx = 0;
+    currentQuizState.score = 0;
+    currentQuizState.selectedOptionIdx = null;
+    currentQuizState.answered = false;
+    
+    renderQuizQuestion();
+}
+
+function renderQuizQuestion() {
+    const bookId = currentQuizState.bookId;
+    const questions = QUIZ_QUESTIONS[bookId];
+    const card = document.getElementById("quiz-card");
+    if (!card) return;
+    
+    if (!questions || questions.length === 0) {
+        card.innerHTML = `
+            <div class="quiz-start-state">
+                <h3>No Quiz Available</h3>
+                <p>Sorry, there are no questions compiled yet for <strong>${NOVELS.find(b => b.id === bookId).title}</strong>.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    const questionObj = questions[currentQuizState.activeQuestionIdx];
+    
+    let optionsHtml = questionObj.options.map((opt, idx) => `
+        <button class="quiz-option" data-idx="${idx}">
+            <i class="fa-regular fa-circle"></i> ${opt}
+        </button>
+    `).join("");
+    
+    card.innerHTML = `
+        <div class="quiz-question-number">Question ${currentQuizState.activeQuestionIdx + 1} of ${questions.length}</div>
+        <div class="quiz-question-text">${questionObj.question}</div>
+        <div class="quiz-options" id="quiz-options-container">
+            ${optionsHtml}
+        </div>
+        <div class="quiz-feedback-box hidden" id="quiz-feedback-box"></div>
+        <div class="quiz-footer">
+            <button class="action-btn primary" id="btn-submit-answer" disabled>Submit Answer</button>
+        </div>
+    `;
+    
+    const optionsContainer = document.getElementById("quiz-options-container");
+    const optionBtns = optionsContainer.querySelectorAll(".quiz-option");
+    
+    optionBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+            if (currentQuizState.answered) return;
+            
+            optionBtns.forEach(b => {
+                b.classList.remove("selected");
+                b.querySelector("i").className = "fa-regular fa-circle";
+            });
+            
+            btn.classList.add("selected");
+            btn.querySelector("i").className = "fa-solid fa-circle-dot";
+            
+            currentQuizState.selectedOptionIdx = parseInt(btn.dataset.idx);
+            document.getElementById("btn-submit-answer").disabled = false;
+        });
+    });
+    
+    document.getElementById("btn-submit-answer").addEventListener("click", () => {
+        if (!currentQuizState.answered) {
+            submitQuizAnswer(questionObj, optionBtns);
+        } else {
+            advanceQuiz();
+        }
+    });
+}
+
+function submitQuizAnswer(questionObj, optionBtns) {
+    currentQuizState.answered = true;
+    const selectedIdx = currentQuizState.selectedOptionIdx;
+    const correctIdx = questionObj.answer;
+    const feedbackBox = document.getElementById("quiz-feedback-box");
+    const submitBtn = document.getElementById("btn-submit-answer");
+    
+    optionBtns.forEach((btn, idx) => {
+        if (idx === correctIdx) {
+            btn.className = "quiz-option correct";
+            btn.querySelector("i").className = "fa-solid fa-circle-check";
+        } else if (idx === selectedIdx) {
+            btn.className = "quiz-option incorrect";
+            btn.querySelector("i").className = "fa-solid fa-circle-xmark";
+        } else {
+            btn.style.opacity = "0.6";
+        }
+    });
+    
+    const isCorrect = selectedIdx === correctIdx;
+    if (isCorrect) {
+        currentQuizState.score++;
+        feedbackBox.className = "quiz-feedback-box correct";
+        feedbackBox.innerHTML = `<i class="fa-solid fa-circle-check"></i> <div><strong>Correct!</strong> ${questionObj.explanation}</div>`;
+    } else {
+        feedbackBox.className = "quiz-feedback-box incorrect";
+        feedbackBox.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> <div><strong>Incorrect.</strong> ${questionObj.explanation}</div>`;
+    }
+    
+    feedbackBox.classList.remove("hidden");
+    
+    const isLast = currentQuizState.activeQuestionIdx === QUIZ_QUESTIONS[currentQuizState.bookId].length - 1;
+    submitBtn.innerText = isLast ? "Finish Quiz" : "Next Question";
+}
+
+function advanceQuiz() {
+    const bookId = currentQuizState.bookId;
+    const questions = QUIZ_QUESTIONS[bookId];
+    
+    if (currentQuizState.activeQuestionIdx < questions.length - 1) {
+        currentQuizState.activeQuestionIdx++;
+        currentQuizState.selectedOptionIdx = null;
+        currentQuizState.answered = false;
+        renderQuizQuestion();
+    } else {
+        renderQuizResults();
+    }
+}
+
+function renderQuizResults() {
+    const bookId = currentQuizState.bookId;
+    const questions = QUIZ_QUESTIONS[bookId];
+    const total = questions.length;
+    const score = currentQuizState.score;
+    const bookTitle = NOVELS.find(b => b.id === bookId).title;
+    
+    state.quizScores[bookId] = { score, total, timestamp: new Date().toLocaleDateString() };
+    localStorage.setItem("loreleaf_quiz_scores", JSON.stringify(state.quizScores));
+    
+    let passMessage = "Keep reading and try again!";
+    if (score === total) {
+        passMessage = "Perfect Score! You are a Lore Master!";
+    } else if (score >= total / 2) {
+        passMessage = "Great job! You have a solid grasp of the lore.";
+    }
+    
+    const card = document.getElementById("quiz-card");
+    if (card) {
+        card.innerHTML = `
+            <div class="quiz-results-state">
+                <h3>Quiz Completed!</h3>
+                <p>Your score for <strong>${bookTitle}</strong> is:</p>
+                <div class="quiz-score-circle">${score}/${total}</div>
+                <p>${passMessage}</p>
+                <button class="action-btn primary" id="btn-restart-quiz-now" style="margin-top: 1rem;">Try Again</button>
+            </div>
+        `;
+        document.getElementById("btn-restart-quiz-now").addEventListener("click", startQuiz);
+    }
+}
+
