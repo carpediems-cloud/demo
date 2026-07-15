@@ -31,6 +31,9 @@
             <button class="nav-btn" id="nav-btn-facts" data-target="section-facts">
                 <i class="fa-solid fa-lightbulb"></i> Fact board
             </button>
+            <button class="nav-btn" id="nav-btn-quiz" data-target="section-quiz">
+                <i class="fa-solid fa-graduation-cap"></i> Quiz
+            </button>
             <button class="nav-btn" id="nav-btn-saved" data-target="section-saved">
                 <i class="fa-solid fa-bookmark"></i> Saved Items
             </button>
@@ -150,6 +153,20 @@
                         <button class="tool-btn" id="btn-bookmark-page" title="Bookmark current chapter">
                             <i class="fa-regular fa-bookmark"></i> <span class="btn-text">Bookmark</span>
                         </button>
+                        <div class="sound-control-container">
+                            <button class="tool-btn" id="btn-toggle-sound" title="Focus Sounds">
+                                <i class="fa-solid fa-headphones"></i> <span class="btn-text">Focus Sound</span>
+                            </button>
+                            <div class="sound-popup hidden" id="sound-popup">
+                                <div class="sound-option" data-sound="none">None</div>
+                                <div class="sound-option" data-sound="rain">Rain Ambient</div>
+                                <div class="sound-option" data-sound="fire">Fire Ambient</div>
+                                <div class="sound-vol-control">
+                                    <i class="fa-solid fa-volume-low"></i>
+                                    <input type="range" id="sound-volume" min="0" max="1" step="0.1" value="0.5">
+                                </div>
+                            </div>
+                        </div>
                         <button class="tool-btn" id="btn-toggle-info-sidebar" title="Toggle Trivia Sideboard">
                             <i class="fa-solid fa-lightbulb"></i> <span class="btn-text">Trivia (3)</span>
                         </button>
@@ -239,11 +256,67 @@
                             <p class="empty-state">No facts saved yet. Add some from the Facts Board or the random generator!</p>
                         </div>
                     </div>
+                    
+                    <!-- Bottom: Highlights & Annotations -->
+                    <div class="saved-block full-width" style="grid-column: span 2; margin-top: 2rem;">
+                        <h3><i class="fa-solid fa-pen-fancy text-primary"></i> Highlights & Annotations</h3>
+                        <div class="saved-list" id="saved-annotations-list">
+                            <!-- Populated by JS -->
+                            <p class="empty-state">No annotations or highlights yet. Click any paragraph in the Novel Reader to highlight or add notes.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: COMPREHENSION QUIZ -->
+        <section class="app-section" id="section-quiz">
+            <div class="quiz-container">
+                <div class="quiz-header-block">
+                    <h2>Comprehension Quiz</h2>
+                    <p id="quiz-intro-text">Test your understanding of the active book.</p>
+                </div>
+                
+                <div class="quiz-card" id="quiz-card">
+                    <!-- Dynamic state content populated by JS -->
+                    <div class="quiz-start-state">
+                        <h3>Ready to test your knowledge?</h3>
+                        <p>This quiz will cover questions about <strong id="quiz-target-book">Active Book</strong>.</p>
+                        <button class="action-btn primary" id="btn-start-quiz">Start Quiz</button>
+                    </div>
                 </div>
             </div>
         </section>
 
     </main>
+
+    <!-- Paragraph Action Popup Tooltip -->
+    <div class="para-action-popup hidden" id="para-action-popup">
+        <button class="para-action-btn color-btn-sage" data-color="sage" title="Highlight Sage"></button>
+        <button class="para-action-btn color-btn-terracotta" data-color="terracotta" title="Highlight Terracotta"></button>
+        <button class="para-action-btn color-btn-blue" data-color="blue" title="Highlight Blue"></button>
+        <button class="para-action-btn clear-hl" id="btn-clear-para-highlight" title="Clear Highlight"><i class="fa-solid fa-eraser"></i></button>
+        <span class="para-divider">|</span>
+        <button class="para-action-btn note-btn" id="btn-add-para-note" title="Add Note"><i class="fa-solid fa-pen-to-square"></i> Note</button>
+    </div>
+
+    <!-- Custom Note Modal -->
+    <div class="note-modal-overlay hidden" id="note-modal-overlay">
+        <div class="note-modal">
+            <div class="note-modal-header">
+                <h3>Add Paragraph Note</h3>
+                <button class="close-btn" id="btn-close-note-modal">&times;</button>
+            </div>
+            <div class="note-modal-body">
+                <p class="quoted-para-text" id="note-quoted-text">"Quoted text goes here..."</p>
+                <textarea id="note-textarea" placeholder="Write your annotation or thoughts here..." rows="4"></textarea>
+            </div>
+            <div class="note-modal-footer">
+                <button class="action-btn secondary" id="btn-delete-note">Delete Note</button>
+                <button class="action-btn primary" id="btn-save-note">Save Annotation</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Notification system -->
     <div class="notification-container" id="notification-container"></div>
