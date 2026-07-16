@@ -77,6 +77,41 @@ const NOVELS = [
                 ]
             }
         ]
+    },
+    {
+        id: "frankenstein",
+        title: "Frankenstein",
+        author: "Mary Shelley",
+        chapters: [
+            {
+                id: "frank-1",
+                title: "Chapter I: Swiss Origins",
+                content: [
+                    "I am by birth a Genevese, and my family is one of the most distinguished of that republic. My ancestors had been for many years counsellors and syndics, and my father had filled several public situations with honour and reputation. He was respected by all who knew him for his integrity and indefatigable attention to public business.",
+                    "He passed his younger days perpetually occupied by the affairs of his country; a variety of circumstances had prevented his marrying early, nor was it until the decline of life that he became a husband and the father of a family.",
+                    "As the circumstances of his marriage illustrate his character, I cannot refrain from relating them. One of his most intimate friends was a merchant who, from a flourishing state, fell, through numerous misfortunes, into poverty. This man, whose name was Beaufort, was of a proud and unbending disposition and could not bear to live in poverty and oblivion in the same country where he had formerly been distinguished for his rank and magnificence."
+                ],
+                trivia: [
+                    { type: "fact", label: "Genevese Origin", title: "Genevese Republic", text: "Geneva was an independent republic before joining Switzerland in 1815. Shelley sets Frankenstein's origins in this center of enlightenment and political discourse." },
+                    { type: "vocab", label: "Syndics", title: "Syndics", text: "A government official or magistrate in Geneva responsible for municipal administration. Victor's family holds high civic standing." },
+                    { type: "lore", label: "Gothic Nature", title: "Gothic Framework", text: "The narrative of Frankenstein uses a frame story structure: Captain Robert Walton writes letters to his sister, recounting Victor Frankenstein's tale, who in turn recounts the monster's story." }
+                ]
+            },
+            {
+                id: "frank-2",
+                title: "Chapter II: Elizabeth and Natural Philosophy",
+                content: [
+                    "We were brought up together; there was not quite a year difference in our ages. I need not say that she was strangers to the harsh, raw school-life, and was my playfellow, my helper, and my friend. Her sympathy was ours; her smile, her soft voice, the sweet glance of her celestial eyes, were ever there to bless and animate us.",
+                    "On the birth of a younger child, the youth of my father ceased, and he retired from public life. He dedicated himself to the education of his children. My sister-child Elizabeth was my principal companion. She was of a calmer and more concentrated disposition; but the harmony of our thoughts was not less complete on that account.",
+                    "I was capable of a more intense application and was more deeply smitten with the thirst for knowledge. She busied herself with following the aerial creations of the poets; and in the majestic and wondrous scenes which our Swiss home afforded—the sublime shapes of the mountains, the changes of the seasons, tempest and calm, the silence of winter, and the life of our Alpine summers—she found ample scope for admiration and study."
+                ],
+                trivia: [
+                    { type: "vocab", label: "Celestial", title: "Celestial", text: "Belonging or relating to heaven. Victor often romanticizes Elizabeth, presenting her in angelic, almost divine terms." },
+                    { type: "fact", label: "Alpine Sublime", title: "Sublime Landscapes", text: "Romantic writers like Shelley used 'the Sublime'—nature so grand and terrifying that it inspires awe—to mirror the characters' internal emotions." },
+                    { type: "lore", label: "Modern Prometheus", title: "The Theft of Fire", text: "Victor's intense application and thirst for forbidden natural knowledge foreshadows his role as the Modern Prometheus, stealing the secret of life from nature." }
+                ]
+            }
+        ]
     }
 ];
 
@@ -217,6 +252,41 @@ const QUIZ_QUESTIONS = {
             ],
             answer: 1,
             explanation: "Holmes never spoke of the softer passions save with a gibe and a sneer, viewing them as distracting factors to logical deduction."
+        }
+    ],
+    frankenstein: [
+        {
+            question: "What is the subtitle of Frankenstein?",
+            options: [
+                "The Modern Prometheus",
+                "A Gothic Nightmare",
+                "The Reanimated Creature",
+                "A Swiss Tragedy"
+            ],
+            answer: 0,
+            explanation: "The subtitle of Mary Shelley's novel is 'The Modern Prometheus', drawing parallels to the Greek myth of stealing fire."
+        },
+        {
+            question: "What is Victor Frankenstein's family origin / birth city?",
+            options: [
+                "Parisian",
+                "Genevese (Geneva)",
+                "Londoner",
+                "Roman"
+            ],
+            answer: 1,
+            explanation: "Victor Frankenstein begins his narrative by stating 'I am by birth a Genevese...' pointing to his Swiss heritage."
+        },
+        {
+            question: "Who was brought up with Victor from a young age as his close companion?",
+            options: [
+                "Robert Walton",
+                "Henry Clerval",
+                "Elizabeth Lavenza",
+                "Justine Moritz"
+            ],
+            answer: 2,
+            explanation: "Elizabeth Lavenza was adopted by the Frankenstein family and raised as Victor's playfellow and companion."
         }
     ]
 };
