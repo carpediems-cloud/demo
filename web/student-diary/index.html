@@ -21,8 +21,18 @@
         </div>
         <button class="toggle-sidebar-btn" id="collapse-sidebar-btn" aria-label="Collapse sidebar">
           <svg class="icon" viewBox="0 0 24 24"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/></svg>
-        </button>
       </div>
+
+      <!-- Theme Selector Widget -->
+      <div class="theme-selector-container">
+        <span class="theme-label">Theme</span>
+        <div class="theme-dots">
+          <button class="theme-dot dot-sand active" data-theme="sand" title="Warm Sand"></button>
+          <button class="theme-dot dot-midnight" data-theme="midnight" title="Midnight Sage"></button>
+          <button class="theme-dot dot-lavender" data-theme="lavender" title="Lavender Mist"></button>
+        </div>
+      </div>
+
 
       <!-- Quick Stats / Quote Card -->
       <div class="quote-card">
@@ -67,7 +77,10 @@
 
       <!-- Journal Entry List -->
       <div class="entries-list-container">
-        <div class="section-title">My Journal Entries (<span id="entry-count">0</span>)</div>
+        <div class="entries-header-row">
+          <div class="section-title">My Journal Entries (<span id="entry-count">0</span>)</div>
+          <button class="btn-insights" id="insights-modal-btn" title="View Mood Insights & Analytics">📊 Insights</button>
+        </div>
         <div class="entries-list" id="entries-list">
           <!-- Dynamically populated entries -->
           <div class="no-entries">No journal entries yet. Tap above to write your first page!</div>
@@ -199,9 +212,31 @@
         </div>
       </header>
 
+      <!-- Rich Text Formatting Toolbar -->
+      <div class="editor-toolbar" id="editor-toolbar">
+        <div class="toolbar-group">
+          <button class="toolbar-btn" data-command="bold" title="Bold (Ctrl+B)"><b>B</b></button>
+          <button class="toolbar-btn" data-command="italic" title="Italic (Ctrl+I)"><i>I</i></button>
+          <button class="toolbar-btn" data-command="underline" title="Underline (Ctrl+U)"><u>U</u></button>
+          <button class="toolbar-btn" data-command="strikeThrough" title="Strikethrough"><s>S</s></button>
+          <button class="toolbar-btn btn-highlight" data-command="highlight" title="Highlight text">🎨</button>
+        </div>
+        <div class="toolbar-divider"></div>
+        <div class="toolbar-group">
+          <button class="toolbar-btn" data-command="insertUnorderedList" title="Bullet List">• List</button>
+          <button class="toolbar-btn" data-command="insertOrderedList" title="Numbered List">1. List</button>
+          <button class="toolbar-btn btn-checklist" id="toolbar-checklist" title="Insert Checklist">☑ Task</button>
+        </div>
+        <div class="toolbar-divider"></div>
+        <div class="toolbar-group">
+          <button class="toolbar-btn btn-prompt" id="toolbar-prompt" title="Insert Reflection Prompt">💡 Prompt</button>
+          <button class="toolbar-btn btn-zen" id="toolbar-zen" title="Zen Focus Mode">🧘 Zen Mode</button>
+        </div>
+      </div>
+
       <!-- Editor Writing Pad -->
       <section class="editor-body">
-        <textarea id="entry-content" class="editor-textarea" placeholder="Start writing here... Let your thoughts flow."></textarea>
+        <div id="entry-content" class="editor-textarea editor-rich-textarea" contenteditable="true" placeholder="Start writing here... Let your thoughts flow."></div>
       </section>
 
       <!-- Editor Footer Status / Portability -->
@@ -223,6 +258,52 @@
         </div>
       </footer>
     </main>
+  </div>
+
+  <!-- Exit Zen focus button -->
+  <button class="btn btn-secondary exit-zen-btn" id="exit-zen-btn" title="Exit Zen Focus Mode">
+    <span>🧘</span> Exit Focus Mode
+  </button>
+
+  <!-- Mood Insights Modal -->
+  <div class="modal-overlay" id="insights-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>Mood Insights & Self-Care</h2>
+        <button class="modal-close" id="insights-close-btn" aria-label="Close modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="insights-summary-grid">
+          <div class="stat-card">
+            <span class="stat-value" id="stats-total-entries">0</span>
+            <span class="stat-label">Total Entries</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value" id="stats-total-words">0</span>
+            <span class="stat-label">Total Words</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value" id="stats-focus-minutes">0m</span>
+            <span class="stat-label">Focused Time</span>
+          </div>
+        </div>
+        
+        <div class="analytics-section">
+          <h3>Mood Distribution</h3>
+          <div class="mood-chart" id="mood-chart-container">
+            <!-- Dynamic mood bars -->
+          </div>
+        </div>
+        
+        <div class="care-recommendation-card" id="care-card">
+          <div class="care-icon" id="care-icon">🍃</div>
+          <div class="care-content">
+            <h4 id="care-heading">Calming Recommendation</h4>
+            <p id="care-text">Write a note to see your personalized recommendation.</p>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Ambient Sound Audio API Synthesizer Fallback alert modal or tips (if browser doesn't support Web Audio API) -->
