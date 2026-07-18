@@ -44,6 +44,10 @@ document.addEventListener('DOMContentLoaded', () => {
   loadData();
   setupEventListeners();
   updateTimerDisplay();
+  
+  // Theme load
+  const savedTheme = localStorage.getItem('zendiary_theme') || 'sand';
+  setTheme(savedTheme, false);
 });
 
 // Rotate quotes based on the current date, or pick a random one
@@ -217,8 +221,8 @@ function loadActiveEntry() {
     datetimeInput.disabled = true;
     categorySelect.value = 'Personal';
     categorySelect.disabled = true;
-    contentTextarea.value = '';
-    contentTextarea.disabled = true;
+    contentTextarea.innerHTML = '';
+    contentTextarea.removeAttribute('contenteditable');
     setMoodActiveUI(null);
     updateStats(0, 0);
     autosaveBadge.classList.remove('show');
@@ -229,16 +233,24 @@ function loadActiveEntry() {
   titleInput.disabled = false;
   datetimeInput.disabled = false;
   categorySelect.disabled = false;
-  contentTextarea.disabled = false;
+  contentTextarea.setAttribute('contenteditable', 'true');
   
   // Load values
   titleInput.value = entry.title || '';
   datetimeInput.value = entry.datetime || '';
   categorySelect.value = entry.category || 'Personal';
-  contentTextarea.value = entry.content || '';
+  
+  let rawContent = entry.content || '';
+  // Convert basic legacy plain text (with \n) to HTML paragraphs
+  if (rawContent && !rawContent.includes('<p>') && !rawContent.includes('<br>') && !rawContent.includes('<div>')) {
+    rawContent = rawContent.split('\n').map(line => line.trim() ? `<p>${line}</p>` : '<p>&nbsp;</p>').join('');
+  }
+  contentTextarea.innerHTML = rawContent;
   
   setMoodActiveUI(entry.mood);
-  updateStats(contentTextarea.value.length, countWords(contentTextarea.value));
+  
+  const plainText = stripHTML(rawContent);
+  updateStats(plainText.length, countWords(plainText));
   
   autosaveBadge.classList.remove('show');
 }
@@ -276,7 +288,7 @@ function saveActiveEntryToServer() {
   entry.title = document.getElementById('entry-title').value;
   entry.datetime = document.getElementById('entry-datetime').value;
   entry.category = document.getElementById('entry-category').value;
-  entry.content = document.getElementById('entry-content').value;
+  entry.content = document.getElementById('entry-content').innerHTML;
   entry.lastModified = Date.now();
   
   saveToLocalStorage();
@@ -355,7 +367,7 @@ function setupEventListeners() {
   });
   
   document.getElementById('entry-content').addEventListener('input', (e) => {
-    const text = e.target.value;
+    const text = stripHTML(e.target.innerHTML);
     updateStats(text.length, countWords(text));
     triggerAutosave();
   });
@@ -403,6 +415,86 @@ function setupEventListeners() {
   
   // Export Single Note to TXT file
   document.getElementById('export-txt-btn').addEventListener('click', exportActiveNoteTXT);
+
+  // Formatting Toolbar Command Handlers
+  const formatButtons = document.querySelectorAll('.toolbar-btn[data-command]');
+  formatButtons.forEach(btn => {
+    btn.addEventListener('mousedown', (e) => {
+      e.preventDefault(); // Prevents losing editor focus
+    });
+    btn.addEventListener('click', () => {
+      const command = btn.dataset.command;
+      if (command === 'highlight') {
+        document.execCommand('backColor', false, '#F5E6A3');
+      } else {
+        document.execCommand(command, false, null);
+      }
+      saveActiveEntryToServer();
+      triggerAutosave();
+    });
+  });
+
+  // Checklist handler
+  const checklistBtn = document.getElementById('toolbar-checklist');
+  checklistBtn.addEventListener('mousedown', (e) => e.preventDefault());
+  checklistBtn.addEventListener('click', () => {
+    const checklistHtml = `<div class="todo-item"><input type="checkbox" class="editor-todo-checkbox"><span>&nbsp;Task item</span></div>`;
+    document.execCommand('insertHTML', false, checklistHtml);
+    saveActiveEntryToServer();
+    triggerAutosave();
+  });
+
+  // Prompt insertion handler
+  const promptBtn = document.getElementById('toolbar-prompt');
+  promptBtn.addEventListener('mousedown', (e) => e.preventDefault());
+  promptBtn.addEventListener('click', () => {
+    const randomPrompt = prompts[Math.floor(Math.random() * prompts.length)];
+    const promptHtml = `<blockquote class="editor-prompt-quote" contenteditable="false">💡 <strong>Reflection:</strong> ${randomPrompt}</blockquote><p>&nbsp;</p>`;
+    document.execCommand('insertHTML', false, promptHtml);
+    saveActiveEntryToServer();
+    triggerAutosave();
+  });
+
+  // Zen Mode trigger buttons
+  const zenBtn = document.getElementById('toolbar-zen');
+  zenBtn.addEventListener('click', () => toggleZenMode(true));
+
+  const exitZenBtn = document.getElementById('exit-zen-btn');
+  exitZenBtn.addEventListener('click', () => toggleZenMode(false));
+
+  // Listen to checklist checkbox click toggles in editor
+  document.getElementById('entry-content').addEventListener('change', (e) => {
+    if (e.target.classList.contains('editor-todo-checkbox')) {
+      if (e.target.checked) {
+        e.target.setAttribute('checked', 'checked');
+      } else {
+        e.target.removeAttribute('checked');
+      }
+      saveActiveEntryToServer();
+      triggerAutosave();
+    }
+  });
+
+  // Theme selector buttons
+  const themeDots = document.querySelectorAll('.theme-dot');
+  themeDots.forEach(dot => {
+    dot.addEventListener('click', () => {
+      setTheme(dot.dataset.theme, true);
+    });
+  });
+
+  // Analytics modal buttons
+  const insightsBtn = document.getElementById('insights-modal-btn');
+  const insightsCloseBtn = document.getElementById('insights-close-btn');
+  const insightsModal = document.getElementById('insights-modal');
+
+  insightsBtn.addEventListener('click', openInsightsModal);
+  insightsCloseBtn.addEventListener('click', () => insightsModal.classList.remove('show'));
+  insightsModal.addEventListener('click', (e) => {
+    if (e.target === insightsModal) {
+      insightsModal.classList.remove('show');
+    }
+  });
 
   // POMODORO TIMER CONTROLS
   const playPauseBtn = document.getElementById('timer-play-pause');
@@ -486,6 +578,10 @@ function toggleTimer() {
         
         // Auto-switch mode
         if (timerMode === 'Study') {
+          // Increment and save focus stats
+          const focusMins = parseInt(localStorage.getItem('zendiary_total_focus_minutes') || '0', 10);
+          localStorage.setItem('zendiary_total_focus_minutes', focusMins + 25);
+          
           setTimerPreset(5, 'Short Break');
           // Update presets active button indicator
           updatePresetBadgeActive('Short Break');
@@ -778,6 +874,8 @@ function exportActiveNoteTXT() {
     return;
   }
   
+  const plaintext = convertHTMLToPlaintext(entry.content || '');
+  
   const textContent = `================================================
 ZEN DIARY ENTRY
 ================================================
@@ -788,7 +886,7 @@ Mood:       ${entry.mood || 'Unspecified'}
 Last Saved: ${new Date(entry.lastModified).toLocaleString()}
 ------------------------------------------------
 
-${entry.content || ''}
+${plaintext}
 
 ================================================
 Generated via ZenDiary 🍃
@@ -911,3 +1009,198 @@ function showToast(message) {
     toast.classList.remove('show');
   }, 2500);
 }
+
+// --- ENHANCED FEATURES HELPERS & CONSTANTS ---
+let isZenMode = false;
+
+const prompts = [
+  "What are 3 small things that made you smile today?",
+  "Describe a challenge you faced today and how you navigated it.",
+  "What is something new you learned or realized today?",
+  "What is one goal you want to focus on tomorrow?",
+  "Who are you grateful for today, and what makes them special?",
+  "Write about a peaceful or calming moment you experienced today.",
+  "If today was a chapter in a book, what would it be titled?",
+  "What is a self-care action you took (or will take) today?",
+  "How did you take care of your body and mind today?",
+  "What is a quote, idea, or song lyric that is inspiring you today?"
+];
+
+const moodRecommendations = {
+  Calm: {
+    heading: "Balance & Harmony 🍃",
+    text: "You've been feeling mostly calm and centered lately. This is a wonderful baseline for learning and reflection. Keep journaling to maintain this mindful balance!",
+    icon: "🍃"
+  },
+  Focused: {
+    heading: "Deep Study Flow 🎯",
+    text: "You are highly driven and focused. Continue structuring your notes and using the study timer, but make sure to pause and relax to prevent cognitive fatigue.",
+    icon: "🎯"
+  },
+  Happy: {
+    heading: "Radiating Joy ☀️",
+    text: "Fantastic! Positive emotions boost creativity and memory retention. Take time to note down what triggered your joy so you can revisit it on harder days.",
+    icon: "☀️"
+  },
+  Tired: {
+    heading: "Recharge & Replenish ☁️",
+    text: "It seems exhaustion has been catching up with you. Try setting a shorter study session, turning on the synthesized Rain or Wind sounds, and taking a step back to rest.",
+    icon: "☁️"
+  },
+  Anxious: {
+    heading: "Gentle Sanctuary 🌊",
+    text: "You've been navigating anxious waves. Be extremely kind to yourself. Listen to the low-rumbling Brown Noise, breathe deeply, and break your tasks into tiny, manageable steps.",
+    icon: "🌊"
+  }
+};
+
+// Strip HTML tags cleanly
+function stripHTML(html) {
+  if (!html) return "";
+  const tempDiv = document.createElement("div");
+  tempDiv.innerHTML = html;
+  return tempDiv.textContent || tempDiv.innerText || "";
+}
+
+// Convert HTML with formatting to simple readable text blocks for TXT export
+function convertHTMLToPlaintext(html) {
+  if (!html) return "";
+  const tempDiv = document.createElement("div");
+  tempDiv.innerHTML = html;
+  
+  // Convert basic elements to readable markers
+  const blocks = tempDiv.querySelectorAll("p, div, br, blockquote, li, .todo-item");
+  blocks.forEach(el => {
+    if (el.tagName === "BR") {
+      el.replaceWith("\n");
+    } else if (el.tagName === "BLOCKQUOTE") {
+      el.prepend("> ");
+      el.append("\n");
+    } else if (el.tagName === "LI") {
+      const hasCheckbox = el.querySelector(".editor-todo-checkbox");
+      if (hasCheckbox) {
+        const isChecked = hasCheckbox.checked ? "[x]" : "[ ]";
+        el.prepend(`${isChecked} `);
+      } else {
+        el.prepend("- ");
+      }
+      el.append("\n");
+    } else if (el.classList.contains("todo-item")) {
+      const chk = el.querySelector(".editor-todo-checkbox");
+      const isChecked = (chk && chk.checked) ? "[x]" : "[ ]";
+      el.prepend(`${isChecked} `);
+      el.append("\n");
+    } else {
+      el.append("\n");
+    }
+  });
+
+  return tempDiv.textContent || tempDiv.innerText || "";
+}
+
+// Set application theme variables
+function setTheme(theme, showToastMsg = true) {
+  document.body.classList.remove("theme-midnight", "theme-lavender");
+  
+  if (theme === "midnight") {
+    document.body.classList.add("theme-midnight");
+  } else if (theme === "lavender") {
+    document.body.classList.add("theme-lavender");
+  } // 'sand' is default baseline css
+  
+  // Highlight active theme dot indicator
+  document.querySelectorAll(".theme-dot").forEach(dot => {
+    dot.classList.toggle("active", dot.dataset.theme === theme);
+  });
+  
+  localStorage.setItem("zendiary_theme", theme);
+  if (showToastMsg) {
+    showToast(`Theme changed to ${theme.toUpperCase()} 🎨`);
+  }
+}
+
+// Toggle distraction-free Zen Focus mode
+function toggleZenMode(enable) {
+  isZenMode = enable;
+  document.body.classList.toggle("zen-mode", isZenMode);
+  if (isZenMode) {
+    showToast("Focus mode active 🧘");
+  } else {
+    showToast("Returned to standard layout");
+  }
+}
+
+// Calculate stats and populate the Mood Analytics overlay
+function openInsightsModal() {
+  const modal = document.getElementById("insights-modal");
+  
+  // Calculate basic summary counts
+  const totalEntries = entries.length;
+  let totalWords = 0;
+  const moodCounts = { Calm: 0, Focused: 0, Happy: 0, Tired: 0, Anxious: 0 };
+  
+  entries.forEach(entry => {
+    const rawContent = entry.content || "";
+    const cleanText = stripHTML(rawContent);
+    totalWords += countWords(cleanText);
+    
+    if (entry.mood && moodCounts.hasOwnProperty(entry.mood)) {
+      moodCounts[entry.mood]++;
+    }
+  });
+  
+  // Fetch completed focus minutes from timer logs
+  const totalFocusMins = parseInt(localStorage.getItem("zendiary_total_focus_minutes") || "0", 10);
+  
+  // Update stats counters
+  document.getElementById("stats-total-entries").textContent = totalEntries;
+  document.getElementById("stats-total-words").textContent = totalWords;
+  document.getElementById("stats-focus-minutes").textContent = `${totalFocusMins}m`;
+  
+  // Render Mood Distribution progress bars
+  const chartContainer = document.getElementById("mood-chart-container");
+  chartContainer.innerHTML = "";
+  
+  // Find the primary mood to recommend care
+  let primaryMood = "Calm";
+  let maxCount = -1;
+  
+  const moodList = ["Calm", "Focused", "Happy", "Tired", "Anxious"];
+  const moodEmojis = { Calm: "🍃", Focused: "🎯", Happy: "☀️", Tired: "☁️", Anxious: "🌊" };
+  
+  moodList.forEach(mood => {
+    const count = moodCounts[mood];
+    if (count > maxCount) {
+      maxCount = count;
+      primaryMood = mood;
+    }
+    
+    const percentage = totalEntries > 0 ? Math.round((count / totalEntries) * 100) : 0;
+    
+    const chartRow = document.createElement("div");
+    chartRow.className = "mood-chart-row";
+    chartRow.innerHTML = `
+      <span class="mood-chart-label">${moodEmojis[mood]} ${mood}</span>
+      <div class="mood-chart-bar-bg">
+        <div class="mood-chart-bar-fill fill-${mood}" style="width: 0%"></div>
+      </div>
+      <span class="mood-chart-percent">${percentage}%</span>
+    `;
+    chartContainer.appendChild(chartRow);
+    
+    // Animate bar loading after inserting
+    setTimeout(() => {
+      chartRow.querySelector(".mood-chart-bar-fill").style.width = `${percentage}%`;
+    }, 100);
+  });
+  
+  // Populate care advice card
+  const care = moodRecommendations[primaryMood] || moodRecommendations.Calm;
+  document.getElementById("care-icon").textContent = care.icon;
+  document.getElementById("care-heading").textContent = care.heading;
+  document.getElementById("care-text").textContent = totalEntries > 0 ? care.text : "Write your first entry today to get insights!";
+  
+  // Display modal overlay
+  modal.classList.add("show");
+}
+
