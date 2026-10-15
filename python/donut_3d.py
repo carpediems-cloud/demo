@@ -320,7 +320,7 @@ class ShapeExplorer3D:
                     cos_th, sin_th = math.cos(theta), math.sin(theta)
                     
                     x = cx + r_tube * (cos_th * nx_t + sin_th * bx)
-                    y = cy + r_tube * (cos_th * nx_t + sin_th * bx)
+                    y = cy + r_tube * (cos_th * ny_t + sin_th * by)
                     z = cz + r_tube * (cos_th * nz_t + sin_th * bz)
                     
                     nx = cos_th * nx_t + sin_th * bx
