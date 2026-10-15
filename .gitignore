@@ -12,6 +12,17 @@ build/
 __pycache__/
 *.py[cod]
 
+# C++ compiled output
+*.exe
+*.o
+*.out
+*.obj
+
+# Log files
+*.log
+
 # OS/editor files
 .DS_Store
 Thumbs.db
+.vscode/
+*.swp
